@@ -1,22 +1,53 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Procurement Intelligence Platform API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication operations
+  - name: tenants
+    description: Tenant management
+  - name: tenders
+    description: Tender discovery and management
+  - name: analysis
+    description: AI tender analysis
+  - name: eligibility
+    description: Eligibility engine
+  - name: proposals
+    description: Proposal generation
+  - name: workflow
+    description: Bid workflow management
+  - name: boq
+    description: BOQ and price intelligence
+  - name: documents
+    description: Document vault
+  - name: knowledge
+    description: Knowledge base
+  - name: analytics
+    description: Analytics and insights
+  - name: calendar
+    description: Bid calendar
+  - name: competitors
+    description: Competitor intelligence
+  - name: amendments
+    description: Amendment tracker
+  - name: clarifications
+    description: Clarification management
+  - name: vendors
+    description: Vendor and OEM CRM
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +55,1052 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ── AUTH ─────────────────────────────────────────────────────────────────────
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: User registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+
+  /auth/me:
+    get:
+      operationId: getCurrentUser
+      tags: [auth]
+      summary: Get current authenticated user
+      responses:
+        "200":
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  # ── TENDERS ──────────────────────────────────────────────────────────────────
+  /tenders:
+    get:
+      operationId: listTenders
+      tags: [tenders]
+      summary: List and search tenders
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+          description: Keyword search
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: state
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [open, closed, awarded, cancelled]
+        - name: minValue
+          in: query
+          schema:
+            type: number
+        - name: maxValue
+          in: query
+          schema:
+            type: number
+        - name: source
+          in: query
+          schema:
+            type: string
+            enum: [gem, cppp, state, psu, railway, defence, municipal, private]
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: List of tenders
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TenderListResponse"
+
+    post:
+      operationId: createTender
+      tags: [tenders]
+      summary: Manually add a tender
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTenderRequest"
+      responses:
+        "201":
+          description: Tender created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tender"
+
+  /tenders/{id}:
+    get:
+      operationId: getTender
+      tags: [tenders]
+      summary: Get tender details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Tender detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TenderDetail"
+        "404":
+          description: Not found
+
+    put:
+      operationId: updateTender
+      tags: [tenders]
+      summary: Update tender
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateTenderRequest"
+      responses:
+        "200":
+          description: Updated tender
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tender"
+
+    delete:
+      operationId: deleteTender
+      tags: [tenders]
+      summary: Delete tender
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /tenders/{id}/track:
+    post:
+      operationId: trackTender
+      tags: [tenders]
+      summary: Add tender to tracked bids
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Tracked
+
+  # ── ANALYSIS ─────────────────────────────────────────────────────────────────
+  /analysis/{tenderId}:
+    get:
+      operationId: getTenderAnalysis
+      tags: [analysis]
+      summary: Get AI analysis for a tender
+      parameters:
+        - name: tenderId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Analysis result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TenderAnalysis"
+
+    post:
+      operationId: runTenderAnalysis
+      tags: [analysis]
+      summary: Trigger AI analysis for a tender
+      parameters:
+        - name: tenderId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Analysis result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TenderAnalysis"
+
+  /analysis/{tenderId}/go-no-go:
+    get:
+      operationId: getGoNoGo
+      tags: [analysis]
+      summary: Get Go/No-Go decision for tender
+      parameters:
+        - name: tenderId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Go/No-Go result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GoNoGoResult"
+
+  # ── ELIGIBILITY ───────────────────────────────────────────────────────────────
+  /eligibility/company-profile:
+    get:
+      operationId: getCompanyProfile
+      tags: [eligibility]
+      summary: Get company profile for eligibility matching
+      responses:
+        "200":
+          description: Company profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompanyProfile"
+
+    put:
+      operationId: updateCompanyProfile
+      tags: [eligibility]
+      summary: Update company profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompanyProfile"
+      responses:
+        "200":
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompanyProfile"
+
+  /eligibility/check/{tenderId}:
+    get:
+      operationId: checkEligibility
+      tags: [eligibility]
+      summary: Check eligibility for a specific tender
+      parameters:
+        - name: tenderId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Eligibility result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EligibilityResult"
+
+  # ── BID WORKFLOW ──────────────────────────────────────────────────────────────
+  /bids:
+    get:
+      operationId: listBids
+      tags: [workflow]
+      summary: List all tracked bids / bid pipeline
+      parameters:
+        - name: stage
+          in: query
+          schema:
+            type: string
+            enum: [shortlisted, in_progress, submitted, won, lost, dropped]
+      responses:
+        "200":
+          description: List of bids
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BidListResponse"
+
+    post:
+      operationId: createBid
+      tags: [workflow]
+      summary: Create a bid entry for a tender
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBidRequest"
+      responses:
+        "201":
+          description: Bid created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bid"
+
+  /bids/{id}:
+    get:
+      operationId: getBid
+      tags: [workflow]
+      summary: Get bid details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Bid detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bid"
+
+    put:
+      operationId: updateBid
+      tags: [workflow]
+      summary: Update bid (stage, notes, etc.)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateBidRequest"
+      responses:
+        "200":
+          description: Updated bid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bid"
+
+  /bids/{id}/tasks:
+    get:
+      operationId: getBidTasks
+      tags: [workflow]
+      summary: Get tasks for a bid
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Tasks list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BidTask"
+
+    post:
+      operationId: createBidTask
+      tags: [workflow]
+      summary: Create a task for a bid
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBidTaskRequest"
+      responses:
+        "201":
+          description: Task created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BidTask"
+
+  # ── PROPOSALS ─────────────────────────────────────────────────────────────────
+  /proposals:
+    get:
+      operationId: listProposals
+      tags: [proposals]
+      summary: List proposals
+      parameters:
+        - name: bidId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Proposals list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Proposal"
+
+    post:
+      operationId: createProposal
+      tags: [proposals]
+      summary: Generate or create a proposal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProposalRequest"
+      responses:
+        "201":
+          description: Proposal created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Proposal"
+
+  /proposals/{id}:
+    get:
+      operationId: getProposal
+      tags: [proposals]
+      summary: Get proposal detail
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Proposal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Proposal"
+
+    put:
+      operationId: updateProposal
+      tags: [proposals]
+      summary: Update proposal content
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProposalRequest"
+      responses:
+        "200":
+          description: Updated proposal
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Proposal"
+
+  # ── BOQ ───────────────────────────────────────────────────────────────────────
+  /boq:
+    get:
+      operationId: listBoq
+      tags: [boq]
+      summary: List BOQ entries
+      parameters:
+        - name: bidId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: BOQ list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BoqItem"
+
+    post:
+      operationId: createBoqItem
+      tags: [boq]
+      summary: Add BOQ line item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBoqItemRequest"
+      responses:
+        "201":
+          description: BOQ item created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BoqItem"
+
+  /boq/{id}:
+    put:
+      operationId: updateBoqItem
+      tags: [boq]
+      summary: Update BOQ line item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBoqItemRequest"
+      responses:
+        "200":
+          description: Updated BOQ item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BoqItem"
+
+    delete:
+      operationId: deleteBoqItem
+      tags: [boq]
+      summary: Delete BOQ item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ── DOCUMENTS ─────────────────────────────────────────────────────────────────
+  /documents:
+    get:
+      operationId: listDocuments
+      tags: [documents]
+      summary: List documents in vault
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Documents list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Document"
+
+    post:
+      operationId: uploadDocument
+      tags: [documents]
+      summary: Upload a document
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDocumentRequest"
+      responses:
+        "201":
+          description: Document uploaded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+
+  /documents/{id}:
+    get:
+      operationId: getDocument
+      tags: [documents]
+      summary: Get document
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Document
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+
+    delete:
+      operationId: deleteDocument
+      tags: [documents]
+      summary: Delete document
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ── KNOWLEDGE BASE ────────────────────────────────────────────────────────────
+  /knowledge:
+    get:
+      operationId: listKnowledgeItems
+      tags: [knowledge]
+      summary: List knowledge base items
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: q
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Knowledge items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/KnowledgeItem"
+
+    post:
+      operationId: createKnowledgeItem
+      tags: [knowledge]
+      summary: Add knowledge base item
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateKnowledgeItemRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KnowledgeItem"
+
+  /knowledge/{id}:
+    put:
+      operationId: updateKnowledgeItem
+      tags: [knowledge]
+      summary: Update knowledge item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateKnowledgeItemRequest"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KnowledgeItem"
+
+    delete:
+      operationId: deleteKnowledgeItem
+      tags: [knowledge]
+      summary: Delete knowledge item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ── ANALYTICS ─────────────────────────────────────────────────────────────────
+  /analytics/dashboard:
+    get:
+      operationId: getDashboardStats
+      tags: [analytics]
+      summary: Get dashboard statistics summary
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /analytics/bid-pipeline:
+    get:
+      operationId: getBidPipelineSummary
+      tags: [analytics]
+      summary: Get bid pipeline breakdown by stage
+      responses:
+        "200":
+          description: Pipeline summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BidPipelineSummary"
+
+  /analytics/tender-trends:
+    get:
+      operationId: getTenderTrends
+      tags: [analytics]
+      summary: Get tender discovery trends over time
+      responses:
+        "200":
+          description: Trends data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TenderTrends"
+
+  /analytics/recent-activity:
+    get:
+      operationId: getRecentActivity
+      tags: [analytics]
+      summary: Get recent activity feed
+      responses:
+        "200":
+          description: Activity feed
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityItem"
+
+  # ── CALENDAR ─────────────────────────────────────────────────────────────────
+  /calendar/events:
+    get:
+      operationId: listCalendarEvents
+      tags: [calendar]
+      summary: List bid calendar events
+      parameters:
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Calendar events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CalendarEvent"
+
+  /calendar/upcoming:
+    get:
+      operationId: getUpcomingDeadlines
+      tags: [calendar]
+      summary: Get upcoming deadlines
+      responses:
+        "200":
+          description: Upcoming deadlines
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CalendarEvent"
+
+  # ── COMPETITORS ───────────────────────────────────────────────────────────────
+  /competitors:
+    get:
+      operationId: listCompetitors
+      tags: [competitors]
+      summary: List competitor intelligence records
+      responses:
+        "200":
+          description: Competitor records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CompetitorRecord"
+
+    post:
+      operationId: createCompetitorRecord
+      tags: [competitors]
+      summary: Add competitor intelligence
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCompetitorRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompetitorRecord"
+
+  # ── AMENDMENTS ───────────────────────────────────────────────────────────────
+  /amendments/{tenderId}:
+    get:
+      operationId: listAmendments
+      tags: [amendments]
+      summary: List amendments for a tender
+      parameters:
+        - name: tenderId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Amendment list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Amendment"
+
+  # ── CLARIFICATIONS ────────────────────────────────────────────────────────────
+  /clarifications:
+    get:
+      operationId: listClarifications
+      tags: [clarifications]
+      summary: List clarification queries
+      parameters:
+        - name: bidId
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, submitted, replied]
+      responses:
+        "200":
+          description: Clarifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Clarification"
+
+    post:
+      operationId: createClarification
+      tags: [clarifications]
+      summary: Create a clarification question
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateClarificationRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Clarification"
+
+  /clarifications/{id}:
+    put:
+      operationId: updateClarification
+      tags: [clarifications]
+      summary: Update clarification status/reply
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateClarificationRequest"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Clarification"
+
+  # ── VENDORS ───────────────────────────────────────────────────────────────────
+  /vendors:
+    get:
+      operationId: listVendors
+      tags: [vendors]
+      summary: List vendors and OEM contacts
+      responses:
+        "200":
+          description: Vendors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Vendor"
+
+    post:
+      operationId: createVendor
+      tags: [vendors]
+      summary: Add vendor/OEM contact
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateVendorRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vendor"
+
+  /vendors/{id}:
+    put:
+      operationId: updateVendor
+      tags: [vendors]
+      summary: Update vendor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateVendorRequest"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vendor"
+
+    delete:
+      operationId: deleteVendor
+      tags: [vendors]
+      summary: Delete vendor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
 components:
   schemas:
     HealthStatus:
@@ -31,6 +1108,998 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required: [email, password]
+
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        name:
+          type: string
+        companyName:
+          type: string
+      required: [email, password, name]
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+      required: [token, user]
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+          enum: [super_admin, company_owner, manager, sales, accounts, technical, viewer]
+        tenantId:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, email, name, role, tenantId]
+
+    Tender:
+      type: object
+      properties:
+        id:
+          type: integer
+        tenantId:
+          type: integer
+        title:
+          type: string
+        referenceNumber:
+          type: string
+        authority:
+          type: string
+        category:
+          type: string
+        state:
+          type: string
+        estimatedValue:
+          type: number
+        emdAmount:
+          type: number
+        status:
+          type: string
+          enum: [open, closed, awarded, cancelled]
+        source:
+          type: string
+          enum: [gem, cppp, state, psu, railway, defence, municipal, private]
+        openingDate:
+          type: string
+          format: date
+        closingDate:
+          type: string
+          format: date
+        preBidDate:
+          type: string
+          format: date
+        riskScore:
+          type: string
+          enum: [green, yellow, red]
+        aiSummary:
+          type: string
+        isTracked:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, title, authority, category, status, source]
+
+    TenderDetail:
+      allOf:
+        - $ref: "#/components/schemas/Tender"
+        - type: object
+          properties:
+            description:
+              type: string
+            eligibilityCriteria:
+              type: string
+            technicalSpecs:
+              type: string
+            paymentTerms:
+              type: string
+            penalties:
+              type: string
+            hiddenClauses:
+              type: string
+            documents:
+              type: array
+              items:
+                $ref: "#/components/schemas/TenderDocument"
+            amendments:
+              type: array
+              items:
+                $ref: "#/components/schemas/Amendment"
+
+    TenderDocument:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        url:
+          type: string
+        type:
+          type: string
+      required: [id, name, url]
+
+    TenderListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tender"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+      required: [data, total, page, limit]
+
+    CreateTenderRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        referenceNumber:
+          type: string
+        authority:
+          type: string
+        category:
+          type: string
+        state:
+          type: string
+        estimatedValue:
+          type: number
+        emdAmount:
+          type: number
+        source:
+          type: string
+        openingDate:
+          type: string
+          format: date
+        closingDate:
+          type: string
+          format: date
+        preBidDate:
+          type: string
+          format: date
+        description:
+          type: string
+        eligibilityCriteria:
+          type: string
+      required: [title, authority, category, source]
+
+    UpdateTenderRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        status:
+          type: string
+        riskScore:
+          type: string
+        aiSummary:
+          type: string
+
+    TenderAnalysis:
+      type: object
+      properties:
+        id:
+          type: integer
+        tenderId:
+          type: integer
+        eligibilityScore:
+          type: number
+        riskScore:
+          type: string
+          enum: [green, yellow, red]
+        eligibilityCriteria:
+          type: array
+          items:
+            type: object
+            properties:
+              criterion:
+                type: string
+              met:
+                type: boolean
+              notes:
+                type: string
+        keyDeadlines:
+          type: array
+          items:
+            type: object
+            properties:
+              label:
+                type: string
+              date:
+                type: string
+        riskFactors:
+          type: array
+          items:
+            type: object
+            properties:
+              factor:
+                type: string
+              severity:
+                type: string
+                enum: [low, medium, high]
+        hiddenClauses:
+          type: array
+          items:
+            type: string
+        turnoverRequired:
+          type: number
+        certifications:
+          type: array
+          items:
+            type: string
+        emdAmount:
+          type: number
+        paymentTerms:
+          type: string
+        aiSummary:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, tenderId, riskScore]
+
+    GoNoGoResult:
+      type: object
+      properties:
+        tenderId:
+          type: integer
+        decision:
+          type: string
+          enum: [bid, skip, review]
+        score:
+          type: number
+        strategicFit:
+          type: number
+        eligibilityScore:
+          type: number
+        marginPotential:
+          type: number
+        competitionLevel:
+          type: string
+          enum: [low, medium, high]
+        reasoning:
+          type: string
+        recommendation:
+          type: string
+      required: [tenderId, decision, score]
+
+    CompanyProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+        tenantId:
+          type: integer
+        companyName:
+          type: string
+        gstNumber:
+          type: string
+        panNumber:
+          type: string
+        annualTurnover:
+          type: number
+        yearsOfExperience:
+          type: integer
+        certifications:
+          type: array
+          items:
+            type: string
+        oemAuthorizations:
+          type: array
+          items:
+            type: string
+        pastProjects:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              value:
+                type: number
+              authority:
+                type: string
+              year:
+                type: integer
+        categories:
+          type: array
+          items:
+            type: string
+        states:
+          type: array
+          items:
+            type: string
+      required: [companyName]
+
+    EligibilityResult:
+      type: object
+      properties:
+        tenderId:
+          type: integer
+        score:
+          type: number
+        eligible:
+          type: boolean
+        criteria:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              required:
+                type: string
+              present:
+                type: string
+              met:
+                type: boolean
+        gaps:
+          type: array
+          items:
+            type: string
+        suggestions:
+          type: array
+          items:
+            type: string
+      required: [tenderId, score, eligible]
+
+    Bid:
+      type: object
+      properties:
+        id:
+          type: integer
+        tenantId:
+          type: integer
+        tenderId:
+          type: integer
+        tender:
+          $ref: "#/components/schemas/Tender"
+        stage:
+          type: string
+          enum: [shortlisted, in_progress, submitted, won, lost, dropped]
+        assignedTo:
+          type: integer
+        notes:
+          type: string
+        targetValue:
+          type: number
+        submissionDate:
+          type: string
+          format: date
+        resultDate:
+          type: string
+          format: date
+        wonValue:
+          type: number
+        lostReason:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, tenderId, stage]
+
+    BidListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Bid"
+        total:
+          type: integer
+      required: [data, total]
+
+    CreateBidRequest:
+      type: object
+      properties:
+        tenderId:
+          type: integer
+        stage:
+          type: string
+          enum: [shortlisted, in_progress, submitted, won, lost, dropped]
+        notes:
+          type: string
+        targetValue:
+          type: number
+        submissionDate:
+          type: string
+          format: date
+      required: [tenderId]
+
+    UpdateBidRequest:
+      type: object
+      properties:
+        stage:
+          type: string
+        notes:
+          type: string
+        targetValue:
+          type: number
+        submissionDate:
+          type: string
+          format: date
+        wonValue:
+          type: number
+        lostReason:
+          type: string
+
+    BidTask:
+      type: object
+      properties:
+        id:
+          type: integer
+        bidId:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        assignedRole:
+          type: string
+          enum: [sales, accounts, technical, manager, owner]
+        status:
+          type: string
+          enum: [pending, in_progress, done]
+        dueDate:
+          type: string
+          format: date
+        completedAt:
+          type: string
+          format: date-time
+      required: [id, bidId, title, status]
+
+    CreateBidTaskRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        assignedRole:
+          type: string
+        dueDate:
+          type: string
+          format: date
+      required: [title]
+
+    Proposal:
+      type: object
+      properties:
+        id:
+          type: integer
+        bidId:
+          type: integer
+        version:
+          type: integer
+        type:
+          type: string
+          enum: [cover_letter, technical, compliance_matrix, deviation, declaration, full]
+        title:
+          type: string
+        content:
+          type: string
+        status:
+          type: string
+          enum: [draft, review, approved, rejected]
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, bidId, version, type, title, status]
+
+    CreateProposalRequest:
+      type: object
+      properties:
+        bidId:
+          type: integer
+        type:
+          type: string
+          enum: [cover_letter, technical, compliance_matrix, deviation, declaration, full]
+        title:
+          type: string
+        aiGenerate:
+          type: boolean
+      required: [bidId, type, title]
+
+    UpdateProposalRequest:
+      type: object
+      properties:
+        content:
+          type: string
+        status:
+          type: string
+          enum: [draft, review, approved, rejected]
+        title:
+          type: string
+
+    BoqItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        bidId:
+          type: integer
+        description:
+          type: string
+        unit:
+          type: string
+        quantity:
+          type: number
+        unitCost:
+          type: number
+        margin:
+          type: number
+        gst:
+          type: number
+        totalCost:
+          type: number
+        vendorQuote:
+          type: number
+        winProbability:
+          type: number
+      required: [id, bidId, description, quantity, unitCost]
+
+    CreateBoqItemRequest:
+      type: object
+      properties:
+        bidId:
+          type: integer
+        description:
+          type: string
+        unit:
+          type: string
+        quantity:
+          type: number
+        unitCost:
+          type: number
+        margin:
+          type: number
+        gst:
+          type: number
+        vendorQuote:
+          type: number
+      required: [bidId, description, quantity, unitCost]
+
+    Document:
+      type: object
+      properties:
+        id:
+          type: integer
+        tenantId:
+          type: integer
+        name:
+          type: string
+        category:
+          type: string
+          enum: [gst, pan, iso, oem, invoice, work_order, certificate, other]
+        fileUrl:
+          type: string
+        fileName:
+          type: string
+        expiryDate:
+          type: string
+          format: date
+        isExpired:
+          type: boolean
+        isExpiringSoon:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, name, category, fileName]
+
+    CreateDocumentRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+          enum: [gst, pan, iso, oem, invoice, work_order, certificate, other]
+        fileName:
+          type: string
+        fileUrl:
+          type: string
+        expiryDate:
+          type: string
+          format: date
+      required: [name, category, fileName]
+
+    KnowledgeItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        tenantId:
+          type: integer
+        title:
+          type: string
+        category:
+          type: string
+          enum: [company_intro, project_description, certification_answer, technical_response, compliance, other]
+        content:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        usageCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, title, category, content]
+
+    CreateKnowledgeItemRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        category:
+          type: string
+          enum: [company_intro, project_description, certification_answer, technical_response, compliance, other]
+        content:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+      required: [title, category, content]
+
+    DashboardStats:
+      type: object
+      properties:
+        totalTenders:
+          type: integer
+        openTenders:
+          type: integer
+        trackedBids:
+          type: integer
+        activeBids:
+          type: integer
+        wonBids:
+          type: integer
+        totalBidValue:
+          type: number
+        winRate:
+          type: number
+        upcomingDeadlines:
+          type: integer
+        expiringDocuments:
+          type: integer
+        eligibleTenders:
+          type: integer
+        newTendersThisWeek:
+          type: integer
+      required: [totalTenders, trackedBids, winRate]
+
+    BidPipelineSummary:
+      type: object
+      properties:
+        stages:
+          type: array
+          items:
+            type: object
+            properties:
+              stage:
+                type: string
+              count:
+                type: integer
+              value:
+                type: number
+        monthlyTrend:
+          type: array
+          items:
+            type: object
+            properties:
+              month:
+                type: string
+              submitted:
+                type: integer
+              won:
+                type: integer
+              lost:
+                type: integer
+      required: [stages]
+
+    TenderTrends:
+      type: object
+      properties:
+        bySource:
+          type: array
+          items:
+            type: object
+            properties:
+              source:
+                type: string
+              count:
+                type: integer
+        byCategory:
+          type: array
+          items:
+            type: object
+            properties:
+              category:
+                type: string
+              count:
+                type: integer
+        byState:
+          type: array
+          items:
+            type: object
+            properties:
+              state:
+                type: string
+              count:
+                type: integer
+        monthly:
+          type: array
+          items:
+            type: object
+            properties:
+              month:
+                type: string
+              count:
+                type: integer
+      required: [bySource, byCategory]
+
+    ActivityItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+          enum: [tender_added, bid_created, bid_stage_changed, proposal_created, document_uploaded, analysis_completed, amendment_detected]
+        entityType:
+          type: string
+        entityId:
+          type: integer
+        entityName:
+          type: string
+        description:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, type, description, createdAt]
+
+    CalendarEvent:
+      type: object
+      properties:
+        id:
+          type: integer
+        tenderId:
+          type: integer
+        bidId:
+          type: integer
+        tenderTitle:
+          type: string
+        type:
+          type: string
+          enum: [submission_deadline, pre_bid_meeting, opening_date, clarification_deadline, emd_deadline]
+        date:
+          type: string
+          format: date-time
+        daysRemaining:
+          type: integer
+        urgency:
+          type: string
+          enum: [critical, high, medium, low]
+      required: [id, type, date, tenderTitle]
+
+    CompetitorRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+        tenantId:
+          type: integer
+        companyName:
+          type: string
+        tenderId:
+          type: integer
+        tenderTitle:
+          type: string
+        awardedAmount:
+          type: number
+        authority:
+          type: string
+        year:
+          type: integer
+        notes:
+          type: string
+        category:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, companyName]
+
+    CreateCompetitorRequest:
+      type: object
+      properties:
+        companyName:
+          type: string
+        tenderId:
+          type: integer
+        tenderTitle:
+          type: string
+        awardedAmount:
+          type: number
+        authority:
+          type: string
+        year:
+          type: integer
+        category:
+          type: string
+        notes:
+          type: string
+      required: [companyName]
+
+    Amendment:
+      type: object
+      properties:
+        id:
+          type: integer
+        tenderId:
+          type: integer
+        version:
+          type: integer
+        type:
+          type: string
+          enum: [deadline_change, spec_change, boq_change, general]
+        summary:
+          type: string
+        changes:
+          type: string
+        publishedAt:
+          type: string
+          format: date-time
+        detectedAt:
+          type: string
+          format: date-time
+      required: [id, tenderId, version, type, summary]
+
+    Clarification:
+      type: object
+      properties:
+        id:
+          type: integer
+        bidId:
+          type: integer
+        question:
+          type: string
+        answer:
+          type: string
+        status:
+          type: string
+          enum: [pending, submitted, replied]
+        submittedAt:
+          type: string
+          format: date-time
+        repliedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, bidId, question, status]
+
+    CreateClarificationRequest:
+      type: object
+      properties:
+        bidId:
+          type: integer
+        question:
+          type: string
+      required: [bidId, question]
+
+    UpdateClarificationRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, submitted, replied]
+        answer:
+          type: string
+
+    Vendor:
+      type: object
+      properties:
+        id:
+          type: integer
+        tenantId:
+          type: integer
+        companyName:
+          type: string
+        contactName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        type:
+          type: string
+          enum: [vendor, oem, subcontractor]
+        categories:
+          type: array
+          items:
+            type: string
+        oemProducts:
+          type: array
+          items:
+            type: string
+        rating:
+          type: number
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, companyName, type]
+
+    CreateVendorRequest:
+      type: object
+      properties:
+        companyName:
+          type: string
+        contactName:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        type:
+          type: string
+          enum: [vendor, oem, subcontractor]
+        categories:
+          type: array
+          items:
+            type: string
+        oemProducts:
+          type: array
+          items:
+            type: string
+        rating:
+          type: number
+        notes:
+          type: string
+      required: [companyName, type]

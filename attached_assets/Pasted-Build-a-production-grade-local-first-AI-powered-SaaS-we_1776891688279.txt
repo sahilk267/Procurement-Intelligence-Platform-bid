@@ -1,0 +1,725 @@
+Build a **production-grade, local-first, AI-powered SaaS web application** named **Procurement Intelligence Platform** for Indian businesses to discover, analyze, prepare, manage, and optimize government/private tenders.
+
+This platform is a **Pre-Bid Intelligence + Bid Preparation + Tender Workflow + Procurement Intelligence OS**.
+
+⚠ IMPORTANT:
+The platform must NOT auto-submit bids on external portals like Government e-Marketplace, Central Public Procurement Portal, or any state/private portals.
+
+Final submission remains manual on external portals.
+
+The system must provide:
+
+* Tender discovery
+* Tender analysis
+* Eligibility matching
+* Proposal generation
+* BOQ pricing intelligence
+* Team workflow
+* Post-bid tracking
+* AI recommendations
+* Go / No-Go decision support
+* Knowledge base reuse
+* Analytics & optimization
+
+No placeholders.
+No pseudo code.
+Generate complete working production-grade code.
+
+====================================================
+
+1. TECH STACK (LOCAL-FIRST)
+   ====================================================
+
+Frontend:
+
+* Next.js latest App Router
+* TypeScript
+* Tailwind CSS
+* Shadcn UI
+* Zustand or Redux
+* PWA support
+
+Backend:
+
+* FastAPI
+* modular monolith or microservices-ready architecture
+* REST + WebSocket
+
+Workers:
+
+* Celery workers
+
+Database:
+
+* PostgreSQL
+
+Cache / Queue:
+
+* Redis
+
+Search:
+
+* OpenSearch
+
+Object Storage:
+
+* MinIO
+
+AI:
+
+* Ollama
+* local LLM models
+* Google Gemini fallback
+
+Vector DB:
+
+* Chroma or FAISS
+
+OCR:
+
+* Tesseract OCR
+* PaddleOCR
+
+Monitoring:
+
+* Prometheus
+* Grafana
+* Sentry
+
+Containers:
+
+* Docker
+* Docker Compose
+
+Reverse Proxy:
+
+* Nginx or Traefik
+
+Local SMTP:
+
+* MailHog or Mailpit
+
+====================================================
+2. MULTI-TENANT ARCHITECTURE
+============================
+
+Single PostgreSQL DB
+Shared schema
+
+Every table must include:
+
+tenant_id
+created_by
+updated_by
+timestamps
+
+Each tenant isolated logically.
+
+====================================================
+3. AUTHENTICATION & SECURITY
+============================
+
+Implement:
+
+* email/password
+* Google OAuth
+* OTP login
+* JWT access tokens
+* refresh tokens
+* RBAC
+
+Roles:
+
+Super Admin
+Company Owner
+Manager
+Sales
+Accounts
+Technical Team
+Viewer
+
+Security:
+
+* audit logs
+* API rate limiting
+* encrypted secrets
+* signed URLs for files
+* activity logs
+* secure file access
+* backup & restore system
+
+====================================================
+4. DATA INGESTION SYSTEM
+========================
+
+Tender ingestion sources:
+
+* Government e-Marketplace
+* Central Public Procurement Portal
+* State portals
+* PSU portals
+* Railway portals
+* Defense portals
+* Municipal portals
+* Private procurement portals
+
+For local development:
+
+Create mock importer scripts:
+
+/scripts/import_gem_sample.py
+/scripts/import_cppp_sample.py
+
+Import JSON / CSV / XML sample tenders.
+
+Background scheduled sync jobs.
+
+====================================================
+5. TENDER DISCOVERY MODULE
+==========================
+
+Features:
+
+* keyword search
+* semantic AI search
+* filters:
+  location
+  category
+  authority
+  EMD
+  value
+  OEM requirement
+  certifications
+  closing date
+
+====================================================
+6. TENDER DETAIL PAGE
+=====================
+
+Show:
+
+* AI summary
+* deadlines
+* authority
+* documents
+* eligibility
+* risks
+* clauses
+* attachments
+* amendments
+* “Open on original portal”
+
+====================================================
+7. AI MODEL ROUTER
+==================
+
+Use local model first.
+
+Possible models:
+
+* Llama
+* Mistral
+* DeepSeek
+
+Fallback to Google Gemini if:
+
+* timeout
+* malformed JSON
+* low confidence
+* missing citations
+* hallucination detected
+
+AI Validator Rules:
+
+Mark response invalid if:
+
+1. no page/clause citation
+2. financial figures absent in retrieved chunk
+3. eligibility criteria absent in source
+4. malformed schema / JSON
+
+====================================================
+8. DOCUMENT PROCESSING PIPELINE
+===============================
+
+Support:
+
+PDF
+DOCX
+XLSX
+ZIP
+Images
+Scanned PDFs
+
+Pipeline:
+
+1. extract text
+2. OCR if scanned
+3. detect tables
+4. preserve layout
+5. generate embeddings
+6. store vectors
+
+Use:
+
+* Unstructured
+* Camelot / Tabula
+* Table transformer
+
+====================================================
+9. RAG SYSTEM
+=============
+
+Chunking must preserve:
+
+* headings
+* clauses
+* table boundaries
+
+Provide exact clause citations.
+
+Hallucination prevention mandatory.
+
+====================================================
+10. AI TENDER ANALYSIS
+======================
+
+Extract:
+
+* eligibility
+* turnover requirement
+* EMD
+* deadlines
+* certifications
+* payment terms
+* penalties
+* hidden clauses
+* technical specs
+
+Risk score:
+
+Green
+Yellow
+Red
+
+====================================================
+11. ELIGIBILITY ENGINE
+======================
+
+Company profile DB:
+
+GST
+PAN
+turnover
+work orders
+certifications
+OEM authorizations
+
+Compare vs tender.
+
+Generate eligibility score.
+
+====================================================
+12. AI MATCHMAKING
+==================
+
+Recommend tenders.
+
+Reverse search:
+
+Upload company profile → find tenders.
+
+====================================================
+13. KNOWLEDGE BASE / CONTENT LIBRARY
+====================================
+
+Store reusable content:
+
+* company introductions
+* past project descriptions
+* certifications answers
+* standard technical responses
+* compliance answers
+
+AI should reuse best responses in proposal generation.
+
+====================================================
+14. GO / NO-GO ENGINE
+=====================
+
+AI evaluates:
+
+* strategic fit
+* eligibility
+* competition
+* margin potential
+* workload/bandwidth
+* authority relationship
+
+Output:
+
+Bid
+Skip
+Review
+
+====================================================
+15. PROPOSAL GENERATOR
+======================
+
+Generate:
+
+* cover letter
+* technical proposal
+* compliance matrix
+* deviation statement
+* declarations
+
+Export PDF / DOCX.
+
+====================================================
+16. CONTENT VERSIONING
+======================
+
+Maintain:
+
+draft v1
+draft v2
+draft v3
+
+Compare versions and rollback.
+
+====================================================
+17. REVIEW / APPROVAL SYSTEM
+============================
+
+Approval flow:
+
+Legal review
+Finance review
+Technical review
+Final approval
+
+Digital sign-off logs.
+
+====================================================
+18. BOQ / PRICE INTELLIGENCE
+============================
+
+Parse BOQ.
+
+Features:
+
+* line items
+* margin
+* tax
+* vendor quote comparison
+* price benchmarking
+* win probability
+
+====================================================
+19. COMPETITOR INTELLIGENCE
+===========================
+
+Historical award analysis:
+
+* who won
+* likely price
+* authority trend
+* seasonal trends
+
+====================================================
+20. AMENDMENT TRACKER
+=====================
+
+Detect corrigendum.
+
+Version compare:
+
+* deadline changed
+* specs changed
+* BOQ changed
+
+====================================================
+21. WORKFLOW ENGINE
+===================
+
+Kanban/task system:
+
+Sales → shortlist
+Accounts → EMD
+Technical → docs
+Manager → review
+Owner → final submit externally
+
+====================================================
+22. BID CALENDAR / TIMELINE
+===========================
+
+Show:
+
+* pre-bid meeting
+* submission deadline
+* opening date
+* clarification deadline
+
+====================================================
+23. CLARIFICATION MANAGEMENT
+============================
+
+Generate clarification questions.
+
+Track:
+
+submitted
+replied
+pending
+
+====================================================
+24. DOCUMENT VAULT
+==================
+
+Store:
+
+GST
+PAN
+ISO
+OEM letters
+Invoices
+Work orders
+Certificates
+
+Expiry reminders.
+
+====================================================
+25. OEM / VENDOR CRM
+====================
+
+Track:
+
+vendors
+OEM contacts
+quotation status
+authorization expiry
+
+====================================================
+26. POST-BID TRACKING
+=====================
+
+Track:
+
+technical opening
+financial opening
+L1/L2/L3
+clarifications
+award/rejection
+
+====================================================
+27. CONTRACT LIFECYCLE (FUTURE READY)
+=====================================
+
+After award:
+
+PO
+invoice
+delivery milestones
+payment follow-up
+
+====================================================
+28. NOTIFICATION SYSTEM
+=======================
+
+Email
+SMS
+WhatsApp
+Telegram
+Push notifications
+
+====================================================
+29. ANALYTICS DASHBOARD
+=======================
+
+Show:
+
+wins/losses
+conversion ratio
+avg bid size
+authority-wise success
+
+====================================================
+30. CONSULTANT MARKETPLACE
+==========================
+
+Hire:
+
+consultants
+legal experts
+proposal writers
+CA/accounting experts
+
+====================================================
+31. CHROME EXTENSION
+====================
+
+Build optional Google Chrome extension.
+
+AI sidebar on tender portals.
+
+====================================================
+32. SUBSCRIPTION SYSTEM
+=======================
+
+Plans:
+
+Free
+Basic
+Pro
+Enterprise
+White-label
+
+====================================================
+33. ADMIN PANEL
+===============
+
+Manage:
+
+tenants
+subscriptions
+logs
+AI usage
+sources
+
+====================================================
+34. LOCAL DEPLOYMENT
+====================
+
+Must run with:
+
+docker-compose up --build
+
+Services:
+
+frontend
+backend
+worker
+postgres
+redis
+opensearch
+minio
+ollama
+prometheus
+grafana
+mailhog/mailpit
+nginx/traefik
+
+Ollama service must support:
+
+* commented GPU passthrough config for Linux/NVIDIA
+* CPU fallback mode for Mac/Windows
+* increased timeout settings for large document AI tasks
+
+====================================================
+35. DEVOPS FILES
+================
+
+Generate:
+
+.env.example
+docker-compose.yml
+Dockerfiles
+seed scripts
+DB init scripts
+OpenSearch init scripts
+MinIO init scripts
+Ollama model pre-pull script
+
+====================================================
+36. EXPORT / IMPORT SYSTEM
+==========================
+
+Export:
+
+CSV
+Excel
+PDF
+
+Import:
+
+CSV / Excel / JSON
+
+====================================================
+37. LOCALIZATION
+================
+
+Support:
+
+English
+Hindi
+
+Future regional language ready.
+
+====================================================
+38. FUTURE CLOUD READY
+======================
+
+Architecture should be easily migratable later to:
+
+* Kubernetes
+* Amazon S3
+* managed DBs
+* managed AI APIs
+
+without major rewrite.
+
+====================================================
+39. OPENSEARCH INIT
+===================
+
+Automatically create `tenders` index.
+
+Include:
+
+* custom mapping
+* keyword + text fields
+* edge_ngram analyzer
+* fuzzy search
+* Hindi stemmer/analyzer
+
+====================================================
+40. MINIO INIT
+==============
+
+Automatically create buckets:
+
+* procurement-documents
+* generated-proposals
+* tenant-assets
+
+Set private access policies.
+
+Access only via signed URLs.
+
+====================================================
+41. AI HALLUCINATION DETECTION
+==============================
+
+Mark AI response invalid if:
+
+* missing page reference
+* missing clause citation
+* amount/value not found in source chunk
+* unsupported extracted requirement
+
+Retry with local LLM or fallback to Gemini.
+
+====================================================
+42. OLLAMA PERFORMANCE STRATEGY
+===============================
+
+Use:
+
+* async long-running jobs
+* worker queue for large analysis
+* timeout-safe architecture
+* streaming responses where needed
+
+Generate complete production-ready codebase and documentation.

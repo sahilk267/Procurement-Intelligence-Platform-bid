@@ -1,8 +1,38 @@
 import { Router, type IRouter } from "express";
 import healthRouter from "./health";
+import authRouter from "./auth";
+import tendersRouter from "./tenders";
+import analysisRouter from "./analysis";
+import eligibilityRouter from "./eligibility";
+import bidsRouter from "./bids";
+import proposalsRouter from "./proposals";
+import boqRouter from "./boq";
+import documentsRouter from "./documents";
+import knowledgeRouter from "./knowledge";
+import analyticsRouter from "./analytics";
+import calendarRouter from "./calendar";
+import competitorsRouter from "./competitors";
+import amendmentsRouter from "./amendments";
+import clarificationsRouter from "./clarifications";
+import vendorsRouter from "./vendors";
 
 const router: IRouter = Router();
 
 router.use(healthRouter);
+router.use("/auth", authRouter);
+router.use("/tenders", tendersRouter);
+router.use("/analysis", analysisRouter);
+router.use("/eligibility", eligibilityRouter);
+router.use("/bids", bidsRouter);
+router.use("/proposals", proposalsRouter);
+router.use("/boq", boqRouter);
+router.use("/documents", documentsRouter);
+router.use("/knowledge", knowledgeRouter);
+router.use("/analytics", analyticsRouter);
+router.use("/calendar", calendarRouter);
+router.use("/competitors", competitorsRouter);
+router.use("/amendments", amendmentsRouter);
+router.use("/clarifications", clarificationsRouter);
+router.use("/vendors", vendorsRouter);
 
 export default router;
