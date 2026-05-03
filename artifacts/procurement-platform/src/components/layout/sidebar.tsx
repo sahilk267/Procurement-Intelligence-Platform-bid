@@ -17,6 +17,7 @@ import {
   Package,
   Scale,
   Bell,
+  Bookmark,
 } from "lucide-react";
 import {
   Sidebar,
@@ -35,6 +36,7 @@ const primaryNav = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Notifications", url: "/notifications", icon: Bell },
   { title: "Tenders", url: "/tenders", icon: Search },
+  { title: "Watchlist", url: "/watchlist", icon: Bookmark },
   { title: "Bids Pipeline", url: "/bids", icon: Target },
   { title: "Bid Comparison", url: "/bids/compare", icon: Scale },
   { title: "Proposals", url: "/proposals", icon: FileText },

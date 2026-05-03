@@ -8,13 +8,43 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Link } from "wouter";
-import { Search, Filter, ArrowUpDown, ExternalLink, Building2, MapPin } from "lucide-react";
+import { Search, Filter, ArrowUpDown, ExternalLink, Building2, MapPin, Bookmark, BookmarkCheck, Loader2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
+
+async function trackTender(id: number) {
+  const token = localStorage.getItem("token") ?? "";
+  const res = await fetch(`/api/tenders/${id}/track`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+  });
+  if (!res.ok) throw new Error("Failed to track");
+  return res.json();
+}
 
 export default function Tenders() {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [trackingIds, setTrackingIds] = useState<Set<number>>(new Set());
+  const [trackedIds, setTrackedIds] = useState<Set<number>>(new Set());
   const [search, setSearch] = useState("");
   const [source, setSource] = useState<string>("all");
   const [status, setStatus] = useState<string>("open");
+
+  async function handleTrack(id: number) {
+    setTrackingIds((prev) => new Set(prev).add(id));
+    try {
+      await trackTender(id);
+      setTrackedIds((prev) => new Set(prev).add(id));
+      queryClient.invalidateQueries({ queryKey: ["watchlist"] });
+      toast({ title: "Tender tracked", description: "Added to your watchlist." });
+    } catch {
+      toast({ title: "Failed to track tender", variant: "destructive" });
+    } finally {
+      setTrackingIds((prev) => { const next = new Set(prev); next.delete(id); return next; });
+    }
+  }
 
   const queryParams: any = {};
   if (search) queryParams.q = search;
@@ -154,11 +184,36 @@ export default function Tenders() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link href={`/tenders/${tender.id}`}>
-                          View Details
-                        </Link>
-                      </Button>
+                      <div className="flex items-center justify-end gap-1">
+                        {tender.isTracked || trackedIds.has(tender.id) ? (
+                          <Badge variant="secondary" className="h-7 text-xs font-normal px-2">
+                            <BookmarkCheck className="h-3 w-3 mr-1" />
+                            Tracked
+                          </Badge>
+                        ) : (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-7 text-xs"
+                            onClick={() => handleTrack(tender.id)}
+                            disabled={trackingIds.has(tender.id)}
+                          >
+                            {trackingIds.has(tender.id) ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <>
+                                <Bookmark className="h-3 w-3 mr-1" />
+                                Track
+                              </>
+                            )}
+                          </Button>
+                        )}
+                        <Button variant="ghost" size="sm" asChild className="h-7 text-xs">
+                          <Link href={`/tenders/${tender.id}`}>
+                            View
+                          </Link>
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))

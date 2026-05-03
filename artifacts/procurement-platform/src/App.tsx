@@ -24,6 +24,7 @@ import AdminPanel from "@/pages/admin";
 import Suppliers from "@/pages/suppliers";
 import BidCompare from "@/pages/bid-compare";
 import Notifications from "@/pages/notifications";
+import Watchlist from "@/pages/watchlist";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -55,6 +56,7 @@ function Router() {
         <Route path="/suppliers" component={Suppliers} />
         <Route path="/bids/compare" component={BidCompare} />
         <Route path="/notifications" component={Notifications} />
+        <Route path="/watchlist" component={Watchlist} />
         <Route path="/admin" component={AdminPanel} />
         <Route path="/settings" component={Settings} />
         <Route component={NotFound} />

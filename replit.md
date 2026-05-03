@@ -47,7 +47,8 @@ Procurement Intelligence Platform — React+Vite frontend, Node.js+Express backe
 |---|---|
 | `/dashboard` | KPI overview, pipeline summary |
 | `/notifications` | Alert center: tender deadlines, doc expiry, stale bids |
-| `/tenders` | Tender discovery and pipeline |
+| `/tenders` | Tender discovery and pipeline (Track button on each row) |
+| `/watchlist` | Tracked tenders list + keyword alert runner |
 | `/bids` | Bid pipeline with stage tracking |
 | `/bids/compare` | 5-dimension bid scoring + radar chart + recommendation |
 | `/proposals` | Proposal management |
