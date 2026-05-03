@@ -129,6 +129,17 @@ router.post("/:id/track", async (req: AuthenticatedRequest, res) => {
   res.json(updated);
 });
 
+router.post("/:id/untrack", async (req: AuthenticatedRequest, res) => {
+  const tenantId = req.tenantId!;
+  const id = Number(req.params.id);
+  const [updated] = await db.update(tendersTable)
+    .set({ isTracked: false, updatedAt: new Date() })
+    .where(and(eq(tendersTable.id, id), eq(tendersTable.tenantId, tenantId)))
+    .returning();
+  if (!updated) { res.status(404).json({ error: "Not found" }); return; }
+  res.json(updated);
+});
+
 router.get("/:id", async (req: AuthenticatedRequest, res) => {
   const tenantId = req.tenantId!;
   const id = Number(req.params.id);

@@ -10,6 +10,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Link } from "wouter";
 import {
   Bookmark, BookmarkCheck, Search, Filter, Building2, MapPin,
@@ -41,6 +51,16 @@ async function trackTender(id: number) {
   return res.json();
 }
 
+async function untrackTender(id: number) {
+  const token = getToken();
+  const res = await fetch(`/api/tenders/${id}/untrack`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+  });
+  if (!res.ok) throw new Error("Failed to untrack tender");
+  return res.json();
+}
+
 async function runKeywordAlert(payload: {
   keywords: string[];
   source: string;
@@ -68,12 +88,16 @@ function getRiskColor(score: string | undefined) {
 function TenderRow({
   tender,
   onTrack,
+  onUntrack,
   tracking,
+  untracking,
   alreadyTracked,
 }: {
   tender: any;
   onTrack?: (id: number) => void;
+  onUntrack?: (id: number) => void;
   tracking?: boolean;
+  untracking?: boolean;
   alreadyTracked?: boolean;
 }) {
   return (
@@ -150,11 +174,23 @@ function TenderRow({
               )}
             </Button>
           )}
-          {(tender.isTracked || alreadyTracked) && !onTrack && (
-            <Badge variant="secondary" className="h-6 text-xs font-normal">
-              <BookmarkCheck className="h-3 w-3 mr-1" />
-              Tracked
-            </Badge>
+          {(tender.isTracked || alreadyTracked) && onUntrack && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onUntrack(tender.id)}
+              disabled={untracking}
+              className="h-7 text-xs"
+            >
+              {untracking ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                <>
+                  <X className="h-3 w-3 mr-1" />
+                  Remove
+                </>
+              )}
+            </Button>
           )}
           <Button variant="ghost" size="sm" asChild className="h-7 text-xs">
             <Link href={`/tenders/${tender.id}`}>
@@ -192,7 +228,9 @@ export default function Watchlist() {
   } | null>(null);
   const [alertRunning, setAlertRunning] = useState(false);
   const [trackingIds, setTrackingIds] = useState<Set<number>>(new Set());
+  const [untrackingIds, setUntrackingIds] = useState<Set<number>>(new Set());
   const [trackedIds, setTrackedIds] = useState<Set<number>>(new Set());
+  const [removeTarget, setRemoveTarget] = useState<any | null>(null);
 
   const filterParams: Record<string, string> = {};
   if (q) filterParams.q = q;
@@ -260,6 +298,29 @@ export default function Watchlist() {
         next.delete(id);
         return next;
       });
+    }
+  }
+
+  async function handleUntrack(id: number) {
+    setUntrackingIds((prev) => new Set(prev).add(id));
+    try {
+      await untrackTender(id);
+      setTrackedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      queryClient.invalidateQueries({ queryKey: ["watchlist"] });
+      toast({ title: "Tender removed", description: "Removed from your watchlist." });
+    } catch {
+      toast({ title: "Failed to remove tender", variant: "destructive" });
+    } finally {
+      setUntrackingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      setRemoveTarget(null);
     }
   }
 
@@ -383,7 +444,13 @@ export default function Watchlist() {
                     </TableRow>
                   ) : (
                     watchlistData?.data?.map((tender) => (
-                      <TenderRow key={tender.id} tender={tender} />
+                      <TenderRow
+                        key={tender.id}
+                        tender={tender}
+                        onUntrack={(id) => setRemoveTarget(tender)}
+                        untracking={untrackingIds.has(tender.id)}
+                        alreadyTracked
+                      />
                     ))
                   )}
                 </TableBody>
@@ -578,7 +645,9 @@ export default function Watchlist() {
                           key={tender.id}
                           tender={tender}
                           onTrack={handleTrack}
+                        onUntrack={(id) => setRemoveTarget(tender)}
                           tracking={trackingIds.has(tender.id)}
+                        untracking={untrackingIds.has(tender.id)}
                           alreadyTracked={trackedIds.has(tender.id)}
                         />
                       ))}
@@ -595,6 +664,24 @@ export default function Watchlist() {
           )}
         </TabsContent>
       </Tabs>
+
+      <AlertDialog open={!!removeTarget} onOpenChange={(open) => !open && setRemoveTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove from watchlist?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will stop tracking{" "}
+              <span className="font-medium text-foreground">{removeTarget?.title}</span>.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => removeTarget && handleUntrack(removeTarget.id)}>
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
