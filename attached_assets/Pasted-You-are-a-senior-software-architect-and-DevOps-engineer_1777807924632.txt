@@ -1,0 +1,210 @@
+You are a senior software architect and DevOps engineer.
+
+Your task is to transform this project into a fully portable, self-contained, production-ready system that can be moved, cloned, or deployed anywhere without missing dependencies, configuration, or data.
+
+## 🎯 CORE GOAL
+
+The entire project must run seamlessly on any machine or hosting platform with a single command/setup, without manual troubleshooting.
+
+---
+
+## 📦 PROJECT PORTABILITY REQUIREMENTS
+
+1. The project must be fully portable:
+
+   * No hardcoded paths
+   * No environment-specific configs
+   * All configs must be dynamic via environment variables
+
+2. Provide:
+
+   * `.env.example` file with all required variables
+   * Auto environment validation system
+
+---
+
+## 🗄️ DATABASE REQUIREMENTS
+
+1. Database must support:
+
+   * Auto schema creation (migrations)
+   * Auto seeding (default data)
+
+2. Provide:
+
+   * `/database/migrations`
+   * `/database/seeders`
+   * `seed.sh` or `seed.py` script
+
+3. On first run:
+
+   * DB auto initializes
+   * Required tables auto created
+   * Default admin user auto created
+
+---
+
+## ⚙️ AUTO SETUP SYSTEM
+
+Create a one-command setup:
+
+* `setup.sh` OR `setup.py`
+
+This must:
+
+* Install dependencies
+* Setup environment variables
+* Initialize database
+* Run migrations
+* Seed database
+* Start the project
+
+---
+
+## 🐳 DOCKER SUPPORT (MANDATORY)
+
+Provide:
+
+* `Dockerfile`
+* `docker-compose.yml`
+
+Must include:
+
+* App container
+* Database container
+* Volume persistence
+* Environment config
+
+Command:
+
+```bash
+docker-compose up --build
+```
+
+Should fully run the project.
+
+---
+
+## 🔌 API MANAGEMENT
+
+1. All APIs must:
+
+   * Be modular
+   * Follow versioning (`/api/v1/...`)
+   * Include validation and error handling
+
+2. Provide:
+
+   * Postman Collection OR Swagger docs
+
+---
+
+## 🧠 CONFIG MANAGEMENT
+
+Create a centralized config system:
+
+* `/config`
+* No scattered configs
+
+---
+
+## 📁 PROJECT STRUCTURE
+
+Maintain clean scalable structure:
+
+* `/src`
+* `/config`
+* `/database`
+* `/routes`
+* `/controllers`
+* `/services`
+* `/utils`
+* `/docs`
+
+---
+
+## 📚 DOCUMENTATION (VERY IMPORTANT)
+
+1. `README.md` must include:
+
+   * Project overview
+   * Features list
+   * Setup instructions (local + docker)
+   * Environment variables
+   * API usage
+   * Deployment guide
+
+2. `/docs` folder must include:
+
+   * Architecture diagram
+   * Database schema
+   * API documentation
+   * Feature-wise explanation
+
+---
+
+## 🔄 AUTO DOCUMENTATION UPDATE SYSTEM
+
+Every time a feature is added:
+
+* README must update automatically
+* Feature list must update
+* API docs must update
+
+---
+
+## 🧪 TESTING
+
+Provide:
+
+* Basic test cases
+* API test coverage
+
+---
+
+## 🔐 SECURITY
+
+* Input validation
+* Secure authentication (JWT or token-based)
+* Rate limiting (if applicable)
+* Environment secrets protection
+
+---
+
+## 🚀 DEPLOYMENT READY
+
+Project must support:
+
+* Local deployment
+* VPS deployment
+* Cloud deployment
+
+Provide:
+
+* Deployment scripts
+* Deployment guide
+
+---
+
+## 📌 FINAL REQUIREMENT
+
+The project must behave like:
+
+"Clone → Setup → Run → Works perfectly"
+
+No missing configs
+No manual fixing
+No dependency errors
+
+---
+
+## 🧠 BONUS (IF POSSIBLE)
+
+* CI/CD pipeline (GitHub Actions)
+* Auto backup system for DB
+* Logging system
+
+---
+
+IMPORTANT:
+Do not leave placeholders or incomplete parts. Everything must be fully working and connected.
