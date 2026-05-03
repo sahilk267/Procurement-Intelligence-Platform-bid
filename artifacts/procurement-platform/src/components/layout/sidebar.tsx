@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   Package,
   Scale,
+  Bell,
 } from "lucide-react";
 import {
   Sidebar,
@@ -32,6 +33,7 @@ import { useAuth } from "@/hooks/use-auth";
 
 const primaryNav = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+  { title: "Notifications", url: "/notifications", icon: Bell },
   { title: "Tenders", url: "/tenders", icon: Search },
   { title: "Bids Pipeline", url: "/bids", icon: Target },
   { title: "Bid Comparison", url: "/bids/compare", icon: Scale },

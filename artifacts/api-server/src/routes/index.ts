@@ -16,6 +16,7 @@ import amendmentsRouter from "./amendments";
 import clarificationsRouter from "./clarifications";
 import vendorsRouter from "./vendors";
 import adminRouter from "./admin";
+import notificationsRouter from "./notifications";
 
 const router: IRouter = Router();
 
@@ -36,5 +37,6 @@ router.use("/amendments", amendmentsRouter);
 router.use("/clarifications", clarificationsRouter);
 router.use("/vendors", vendorsRouter);
 router.use("/admin", adminRouter);
+router.use("/notifications", notificationsRouter);
 
 export default router;
