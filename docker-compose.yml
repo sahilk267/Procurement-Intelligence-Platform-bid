@@ -1,0 +1,23 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: 8080
+      NODE_ENV: development
+      LOG_LEVEL: info
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/procureintel
+      JWT_SECRET: replace-me
+    depends_on:
+      - db
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: procureintel
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:

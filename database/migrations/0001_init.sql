@@ -1,0 +1,2 @@
+-- Initial schema placeholder for portable setup
+-- Use Drizzle migrations in the shared DB package for real schema changes.

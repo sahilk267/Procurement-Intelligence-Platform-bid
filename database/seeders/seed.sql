@@ -1,0 +1,1 @@
+INSERT INTO tenants (id, name, created_at, updated_at) VALUES (1, 'ProcureIntel Demo', NOW(), NOW()) ON CONFLICT (id) DO NOTHING;
