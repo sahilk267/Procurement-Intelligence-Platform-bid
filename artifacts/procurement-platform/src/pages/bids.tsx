@@ -5,10 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import {
   Target, ChevronRight, Calendar, AlertCircle, CheckCircle2,
-  Clock, BarChart2, FileText, IndianRupee
+  Clock, BarChart2, FileText, IndianRupee, Scale
 } from "lucide-react";
 
 const STAGE_ORDER = ["identification", "evaluation", "bid_prep", "submitted", "won", "lost", "no_bid"];
@@ -61,6 +61,12 @@ export default function Bids() {
           <p className="text-muted-foreground">Track all active and historical bids through their lifecycle.</p>
         </div>
         <div className="flex gap-2">
+          <Link href="/bids/compare">
+            <Button variant="outline" size="sm" className="gap-1.5">
+              <Scale className="h-4 w-4" />
+              Compare Bids
+            </Button>
+          </Link>
           <Button variant={view === "kanban" ? "default" : "outline"} size="sm" onClick={() => setView("kanban")}>Kanban</Button>
           <Button variant={view === "list" ? "default" : "outline"} size="sm" onClick={() => setView("list")}>List</Button>
         </div>
