@@ -68,44 +68,48 @@ export default function Settings() {
             <div className="grid gap-3 text-sm">
               <div className="grid grid-cols-2 gap-1">
                 <span className="text-muted-foreground">Company Name</span>
-                <span className="font-medium">{profile.name}</span>
+                <span className="font-medium">{profile.companyName}</span>
               </div>
-              {profile.registrationNumber && (
-                <div className="grid grid-cols-2 gap-1">
-                  <span className="text-muted-foreground">Registration No.</span>
-                  <span className="font-medium">{profile.registrationNumber}</span>
-                </div>
-              )}
-              {profile.pan && (
+              {profile.panNumber && (
                 <div className="grid grid-cols-2 gap-1">
                   <span className="text-muted-foreground">PAN</span>
-                  <span className="font-medium">{profile.pan}</span>
+                  <span className="font-medium">{profile.panNumber}</span>
                 </div>
               )}
-              {profile.gstin && (
+              {profile.gstNumber && (
                 <div className="grid grid-cols-2 gap-1">
                   <span className="text-muted-foreground">GSTIN</span>
-                  <span className="font-medium">{profile.gstin}</span>
+                  <span className="font-medium">{profile.gstNumber}</span>
                 </div>
               )}
               {profile.annualTurnover && (
                 <div className="grid grid-cols-2 gap-1">
                   <span className="text-muted-foreground">Annual Turnover</span>
-                  <span className="font-medium">₹{(profile.annualTurnover / 10000000).toFixed(2)} Cr</span>
+                  <span className="font-medium">₹{(Number(profile.annualTurnover) / 10000000).toFixed(2)} Cr</span>
                 </div>
               )}
-              {profile.employeeCount && (
+              {profile.yearsOfExperience && (
                 <div className="grid grid-cols-2 gap-1">
-                  <span className="text-muted-foreground">Employees</span>
-                  <span className="font-medium">{profile.employeeCount}</span>
+                  <span className="text-muted-foreground">Years of Experience</span>
+                  <span className="font-medium">{profile.yearsOfExperience} years</span>
                 </div>
               )}
-              {profile.classifications && profile.classifications.length > 0 && (
+              {profile.certifications && profile.certifications.length > 0 && (
                 <div className="grid grid-cols-2 gap-1">
-                  <span className="text-muted-foreground">Classifications</span>
+                  <span className="text-muted-foreground">Certifications</span>
                   <div className="flex flex-wrap gap-1">
-                    {profile.classifications.map((c: string, i: number) => (
+                    {profile.certifications.map((c: string, i: number) => (
                       <Badge key={i} variant="secondary" className="text-xs font-normal">{c}</Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {profile.categories && profile.categories.length > 0 && (
+                <div className="grid grid-cols-2 gap-1">
+                  <span className="text-muted-foreground">Categories</span>
+                  <div className="flex flex-wrap gap-1">
+                    {profile.categories.map((c: string, i: number) => (
+                      <Badge key={i} variant="outline" className="text-xs font-normal">{c}</Badge>
                     ))}
                   </div>
                 </div>

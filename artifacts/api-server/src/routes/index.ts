@@ -15,6 +15,7 @@ import competitorsRouter from "./competitors";
 import amendmentsRouter from "./amendments";
 import clarificationsRouter from "./clarifications";
 import vendorsRouter from "./vendors";
+import adminRouter from "./admin";
 
 const router: IRouter = Router();
 
@@ -34,5 +35,6 @@ router.use("/competitors", competitorsRouter);
 router.use("/amendments", amendmentsRouter);
 router.use("/clarifications", clarificationsRouter);
 router.use("/vendors", vendorsRouter);
+router.use("/admin", adminRouter);
 
 export default router;

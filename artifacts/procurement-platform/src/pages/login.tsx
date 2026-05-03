@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -84,6 +84,7 @@ export default function Login() {
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+
                 <FormField
                   control={form.control}
                   name="email"
@@ -126,6 +127,12 @@ export default function Login() {
                 </Button>
               </form>
             </Form>
+            <p className="text-center text-sm text-muted-foreground mt-4">
+              Don't have an account?{" "}
+              <Link href="/register" className="text-primary font-medium hover:underline">
+                Create one
+              </Link>
+            </p>
           </CardContent>
         </Card>
       </div>

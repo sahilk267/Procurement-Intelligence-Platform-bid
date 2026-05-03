@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppLayout } from "@/components/layout/app-layout";
 import NotFound from "@/pages/not-found";
 import Login from "@/pages/login";
+import Register from "@/pages/register";
 import Dashboard from "@/pages/dashboard";
 import Tenders from "@/pages/tenders";
 import Bids from "@/pages/bids";
@@ -19,6 +20,8 @@ import Knowledge from "@/pages/knowledge";
 import CalendarPage from "@/pages/calendar";
 import Vendors from "@/pages/vendors";
 import Settings from "@/pages/settings";
+import AdminPanel from "@/pages/admin";
+import Suppliers from "@/pages/suppliers";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -47,6 +50,8 @@ function Router() {
         <Route path="/knowledge" component={Knowledge} />
         <Route path="/calendar" component={CalendarPage} />
         <Route path="/vendors" component={Vendors} />
+        <Route path="/suppliers" component={Suppliers} />
+        <Route path="/admin" component={AdminPanel} />
         <Route path="/settings" component={Settings} />
         <Route component={NotFound} />
       </Switch>

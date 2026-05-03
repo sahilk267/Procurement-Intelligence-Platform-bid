@@ -12,7 +12,9 @@ import {
   Users, 
   MessageSquare, 
   Settings,
-  Target
+  Target,
+  ShieldCheck,
+  Package,
 } from "lucide-react";
 import {
   Sidebar,
@@ -25,6 +27,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useAuth } from "@/hooks/use-auth";
 
 const primaryNav = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -46,13 +49,18 @@ const resourcesNav = [
   { title: "Knowledge Base", url: "/knowledge", icon: BookOpen },
   { title: "Calendar", url: "/calendar", icon: CalendarDays },
   { title: "Vendors & OEMs", url: "/vendors", icon: Users },
+  { title: "Suppliers", url: "/suppliers", icon: Package },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 
+const ADMIN_ROLES = ["company_owner", "admin", "super_admin", "manager"];
+
 export function AppSidebar() {
   const [location] = useLocation();
+  const { user } = useAuth();
 
   const isActive = (url: string) => location.startsWith(url);
+  const isAdmin = user && ADMIN_ROLES.includes(user.role || "");
 
   return (
     <Sidebar variant="inset" collapsible="icon">
@@ -120,6 +128,24 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {isAdmin && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Administration</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={isActive("/admin")} tooltip="Admin Panel">
+                    <Link href="/admin" className="flex items-center gap-2">
+                      <ShieldCheck className="h-4 w-4" />
+                      <span>Admin Panel</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
     </Sidebar>
   );
