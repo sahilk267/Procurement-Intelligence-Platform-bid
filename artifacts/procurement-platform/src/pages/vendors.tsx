@@ -1,15 +1,13 @@
 import { useListVendors } from "@workspace/api-client-react";
-import { formatCurrency, formatDate } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, Star, Package, Phone, Mail, MapPin } from "lucide-react";
+import { Users, Star, Package, Phone, Mail } from "lucide-react";
 
-const STATUS_VARIANTS: Record<string, any> = {
-  active: "default",
-  inactive: "secondary",
-  blacklisted: "destructive",
-  pending_approval: "outline",
+const TYPE_VARIANTS: Record<string, any> = {
+  oem: "default",
+  vendor: "secondary",
+  subcontractor: "outline",
 };
 
 function StarRating({ rating }: { rating: number }) {
@@ -38,12 +36,12 @@ export default function Vendors() {
           <p className="text-2xl font-bold">{(vendors || []).length}</p>
         </div>
         <div className="bg-muted rounded-xl p-4">
-          <p className="text-xs text-muted-foreground font-medium mb-1">Active</p>
-          <p className="text-2xl font-bold">{(vendors || []).filter(v => v.status === "active").length}</p>
+          <p className="text-xs text-muted-foreground font-medium mb-1">OEM Partners</p>
+          <p className="text-2xl font-bold">{(vendors || []).filter(v => v.type === "oem").length}</p>
         </div>
         <div className="bg-muted rounded-xl p-4">
-          <p className="text-xs text-muted-foreground font-medium mb-1">Categories</p>
-          <p className="text-2xl font-bold">{new Set((vendors || []).map(v => v.category).filter(Boolean)).size}</p>
+          <p className="text-xs text-muted-foreground font-medium mb-1">Subcontractors</p>
+          <p className="text-2xl font-bold">{(vendors || []).filter(v => v.type === "subcontractor").length}</p>
         </div>
       </div>
 
@@ -58,59 +56,63 @@ export default function Vendors() {
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <CardTitle className="text-base">{vendor.name}</CardTitle>
-                    {vendor.category && (
-                      <CardDescription className="capitalize">{vendor.category.replace("_", " ")}</CardDescription>
+                    <CardTitle className="text-base">{vendor.companyName}</CardTitle>
+                    {vendor.contactName && (
+                      <CardDescription>{vendor.contactName}</CardDescription>
                     )}
                   </div>
-                  <Badge variant={STATUS_VARIANTS[vendor.status] || "secondary"} className="capitalize">
-                    {vendor.status?.replace("_", " ")}
+                  <Badge variant={TYPE_VARIANTS[vendor.type] || "secondary"} className="capitalize">
+                    {vendor.type}
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
                 {vendor.rating !== undefined && (
                   <div className="flex items-center gap-2">
-                    <StarRating rating={Math.round(vendor.rating)} />
-                    <span className="text-sm text-muted-foreground">({vendor.rating.toFixed(1)})</span>
+                    <StarRating rating={Math.round(Number(vendor.rating))} />
+                    <span className="text-sm text-muted-foreground">({Number(vendor.rating).toFixed(1)})</span>
                   </div>
                 )}
 
-                {vendor.contactEmail && (
+                {vendor.email && (
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Mail className="h-3.5 w-3.5 shrink-0" />
-                    <span className="truncate">{vendor.contactEmail}</span>
+                    <span className="truncate">{vendor.email}</span>
                   </div>
                 )}
-                {vendor.contactPhone && (
+                {vendor.phone && (
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Phone className="h-3.5 w-3.5 shrink-0" />
-                    {vendor.contactPhone}
-                  </div>
-                )}
-                {vendor.city && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin className="h-3.5 w-3.5 shrink-0" />
-                    {[vendor.city, vendor.state].filter(Boolean).join(", ")}
+                    {vendor.phone}
                   </div>
                 )}
 
-                {vendor.specializations && vendor.specializations.length > 0 && (
+                {vendor.categories && vendor.categories.length > 0 && (
                   <div>
-                    <p className="text-xs font-medium text-muted-foreground mb-1.5">Specializations</p>
+                    <p className="text-xs font-medium text-muted-foreground mb-1.5">Categories</p>
                     <div className="flex flex-wrap gap-1">
-                      {vendor.specializations.map((s: string, i: number) => (
-                        <Badge key={i} variant="secondary" className="text-xs font-normal">{s}</Badge>
+                      {vendor.categories.map((c: string, i: number) => (
+                        <Badge key={i} variant="secondary" className="text-xs font-normal">{c}</Badge>
                       ))}
                     </div>
                   </div>
                 )}
 
-                {vendor.contractValue && (
-                  <div className="flex items-center justify-between text-sm pt-2 border-t border-border">
-                    <span className="text-muted-foreground">Contract Value</span>
-                    <span className="font-medium">{formatCurrency(vendor.contractValue)}</span>
+                {vendor.oemProducts && vendor.oemProducts.length > 0 && (
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1">
+                      <Package className="h-3 w-3" /> OEM Products
+                    </p>
+                    <div className="flex flex-wrap gap-1">
+                      {vendor.oemProducts.map((p: string, i: number) => (
+                        <Badge key={i} variant="outline" className="text-xs font-normal">{p}</Badge>
+                      ))}
+                    </div>
                   </div>
+                )}
+
+                {vendor.notes && (
+                  <p className="text-sm text-muted-foreground line-clamp-2 border-t pt-2">{vendor.notes}</p>
                 )}
               </CardContent>
             </Card>

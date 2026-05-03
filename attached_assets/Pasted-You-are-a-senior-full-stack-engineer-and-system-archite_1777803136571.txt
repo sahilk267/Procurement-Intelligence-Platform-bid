@@ -1,0 +1,138 @@
+You are a senior full-stack engineer and system architect.
+
+Your task is to analyze and COMPLETE this project:
+GitHub Repo: https://github.com/sahilk267/Procurement-Intelligence-Platform-bid.git
+
+⚠️ IMPORTANT RULES:
+
+* Do NOT assume anything blindly.
+* First ANALYZE the entire repo structure, files, dependencies, and architecture.
+* Identify ALL missing parts, broken logic, incomplete modules, and scalability issues.
+* Then FIX and COMPLETE the system step-by-step.
+
+---
+
+🎯 PROJECT GOAL:
+Build a scalable Procurement Intelligence Platform that includes:
+
+* Supplier discovery & matching
+* Bid management system
+* Procurement analytics dashboard
+* Automated insights & reports
+* Role-based user system (Admin / Buyer / Supplier)
+
+---
+
+🧠 STEP 1: FULL PROJECT ANALYSIS
+
+Do a deep analysis and output:
+
+1. Folder structure breakdown
+2. Tech stack used (frontend, backend, DB)
+3. Existing features already implemented
+4. Missing features
+5. Broken or incomplete logic
+6. Security issues
+7. Scalability problems
+
+---
+
+🛠️ STEP 2: FIX ARCHITECTURE
+
+If architecture is weak, improve it:
+
+* Backend: Python (FastAPI) OR Node.js (Express)
+* Frontend: React (preferred)
+* Database: PostgreSQL or MySQL
+* Authentication: JWT + role-based access
+* API structure: RESTful (clean modular design)
+
+---
+
+⚙️ STEP 3: IMPLEMENT MISSING FEATURES
+
+Complete these modules FULLY:
+
+1. Authentication System
+
+   * Login / Register
+   * Role-based access (Admin, Buyer, Supplier)
+
+2. Supplier Module
+
+   * Supplier listing
+   * Supplier profile
+   * Matching algorithm (basic logic)
+
+3. Bidding System
+
+   * Create bid
+   * Submit bid
+   * Compare bids
+
+4. Procurement Dashboard
+
+   * Charts (spending, trends)
+   * Insights
+
+5. Admin Panel
+
+   * Manage users
+   * Manage bids
+   * System analytics
+
+---
+
+📊 STEP 4: ADD INTELLIGENCE (IMPORTANT)
+
+Add basic AI/logic:
+
+* Supplier recommendation logic
+* Bid comparison scoring
+* Insights (top suppliers, cost trends)
+
+---
+
+🔐 STEP 5: SECURITY
+
+* JWT authentication
+* Password hashing
+* Input validation
+* Basic API protection
+
+---
+
+🧪 STEP 6: TESTING
+
+* Fix runtime errors
+* Ensure all APIs work
+* Add sample test data
+
+---
+
+📦 STEP 7: FINAL OUTPUT
+
+Provide:
+
+1. Updated complete code (file-by-file)
+2. Setup instructions
+3. Environment variables (.env)
+4. Database schema
+5. API documentation
+
+---
+
+⚠️ CODING RULES:
+
+* Clean, modular code
+* No dummy placeholders
+* No incomplete functions
+* Use proper folder structure
+* Comment important logic
+
+---
+
+🚀 FINAL GOAL:
+
+Make the project production-ready and scalable.
+Do NOT leave anything incomplete.
