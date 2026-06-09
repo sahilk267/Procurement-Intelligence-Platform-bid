@@ -1,0 +1,17 @@
+node_modules
+.pnpm-store
+.pnpm
+dist
+build
+.DS_Store
+.git
+.gitignore
+docker-compose.override.yml
+*.log
+**/node_modules
+**/dist
+**/.turbo
+**/.idea
+**/.vscode
+**/.DS_Store
+**/tmp

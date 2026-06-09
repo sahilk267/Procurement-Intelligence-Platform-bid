@@ -18,6 +18,7 @@ import {
   Scale,
   Bell,
   Bookmark,
+  Sparkles,
 } from "lucide-react";
 import {
   Sidebar,
@@ -34,6 +35,7 @@ import { useAuth } from "@/hooks/use-auth";
 
 const primaryNav = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+  { title: "Core Features", url: "/core-features", icon: Sparkles },
   { title: "Notifications", url: "/notifications", icon: Bell },
   { title: "Tenders", url: "/tenders", icon: Search },
   { title: "Watchlist", url: "/watchlist", icon: Bookmark },

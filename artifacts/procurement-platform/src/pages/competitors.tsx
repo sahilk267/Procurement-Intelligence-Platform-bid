@@ -3,7 +3,7 @@ import { formatCurrency } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, TrendingUp, Target, Award } from "lucide-react";
+import { Users, Target, Award } from "lucide-react";
 
 export default function Competitors() {
   const { data: competitors, isLoading } = useListCompetitors();
@@ -26,66 +26,47 @@ export default function Competitors() {
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div>
-                    <CardTitle className="text-base">{comp.name}</CardTitle>
-                    {comp.type && (
-                      <CardDescription className="capitalize">{comp.type.replace("_", " ")}</CardDescription>
+                    <CardTitle className="text-base">{comp.companyName}</CardTitle>
+                    {comp.category && (
+                      <CardDescription className="capitalize">{comp.category.replace("_", " ")}</CardDescription>
                     )}
                   </div>
-                  {comp.threatLevel && (
-                    <Badge variant={comp.threatLevel === "high" ? "destructive" : comp.threatLevel === "medium" ? "outline" : "secondary"} className="capitalize">
-                      {comp.threatLevel} threat
-                    </Badge>
-                  )}
+                  <Badge variant="secondary" className="capitalize">{comp.authority || "Tracked"}</Badge>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  {comp.winRate !== undefined && (
+                  {comp.year !== undefined && (
                     <div className="bg-muted rounded-lg p-3">
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
                         <Award className="h-3.5 w-3.5" />
-                        Win Rate
+                        Year
                       </div>
-                      <div className="text-xl font-bold">{(comp.winRate * 100).toFixed(0)}%</div>
+                      <div className="text-xl font-bold">{comp.year}</div>
                     </div>
                   )}
-                  {comp.totalBidsWon !== undefined && (
+                  {comp.tenderTitle && (
                     <div className="bg-muted rounded-lg p-3">
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
                         <Target className="h-3.5 w-3.5" />
-                        Bids Won
+                        Tender
                       </div>
-                      <div className="text-xl font-bold">{comp.totalBidsWon}</div>
+                      <div className="text-sm font-bold line-clamp-2">{comp.tenderTitle}</div>
                     </div>
                   )}
                 </div>
 
-                {comp.strengths && comp.strengths.length > 0 && (
+                {comp.notes && (
                   <div>
-                    <p className="text-xs font-medium text-muted-foreground mb-1.5">Key Strengths</p>
-                    <div className="flex flex-wrap gap-1">
-                      {comp.strengths.map((s: string, i: number) => (
-                        <Badge key={i} variant="secondary" className="text-xs font-normal">{s}</Badge>
-                      ))}
-                    </div>
+                    <p className="text-xs font-medium text-muted-foreground mb-1.5">Notes</p>
+                    <p className="text-sm text-muted-foreground">{comp.notes}</p>
                   </div>
                 )}
 
-                {comp.weaknesses && comp.weaknesses.length > 0 && (
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground mb-1.5">Weaknesses</p>
-                    <div className="flex flex-wrap gap-1">
-                      {comp.weaknesses.map((w: string, i: number) => (
-                        <Badge key={i} variant="outline" className="text-xs font-normal">{w}</Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {comp.averageBidValue && (
+                {comp.awardedAmount && (
                   <div className="flex items-center justify-between text-sm pt-2 border-t border-border">
-                    <span className="text-muted-foreground">Avg Bid Value</span>
-                    <span className="font-medium">{formatCurrency(comp.averageBidValue)}</span>
+                    <span className="text-muted-foreground">Awarded Amount</span>
+                    <span className="font-medium">{formatCurrency(Number(comp.awardedAmount))}</span>
                   </div>
                 )}
               </CardContent>

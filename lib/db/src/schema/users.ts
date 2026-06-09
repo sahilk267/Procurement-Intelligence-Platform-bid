@@ -10,6 +10,8 @@ export const usersTable = pgTable("users", {
   passwordHash: text("password_hash").notNull(),
   name: text("name").notNull(),
   role: text("role").notNull().default("viewer"),
+  createdBy: integer("created_by"),
+  updatedBy: integer("updated_by"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

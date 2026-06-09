@@ -9,6 +9,8 @@ export const bidsTable = pgTable("bids", {
   id: serial("id").primaryKey(),
   tenantId: integer("tenant_id").references(() => tenantsTable.id).notNull(),
   tenderId: integer("tender_id").references(() => tendersTable.id).notNull(),
+  createdBy: integer("created_by").references(() => usersTable.id),
+  updatedBy: integer("updated_by").references(() => usersTable.id),
   stage: text("stage").notNull().default("shortlisted"),
   assignedTo: integer("assigned_to").references(() => usersTable.id),
   notes: text("notes"),

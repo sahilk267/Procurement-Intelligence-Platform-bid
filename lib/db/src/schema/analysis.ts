@@ -1,13 +1,16 @@
 import { pgTable, serial, text, integer, numeric, jsonb, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
-import { tendersTable } from "./tenders";
 import { tenantsTable } from "./tenants";
+import { tendersTable } from "./tenders";
+import { usersTable } from "./users";
 
 export const tenderAnalysisTable = pgTable("tender_analysis", {
   id: serial("id").primaryKey(),
   tenantId: integer("tenant_id").references(() => tenantsTable.id).notNull(),
   tenderId: integer("tender_id").references(() => tendersTable.id).notNull(),
+  createdBy: integer("created_by").references(() => usersTable.id),
+  updatedBy: integer("updated_by").references(() => usersTable.id),
   eligibilityScore: numeric("eligibility_score", { precision: 5, scale: 2 }),
   riskScore: text("risk_score"),
   eligibilityCriteria: jsonb("eligibility_criteria"),
@@ -20,11 +23,14 @@ export const tenderAnalysisTable = pgTable("tender_analysis", {
   paymentTerms: text("payment_terms"),
   aiSummary: text("ai_summary"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const companyProfileTable = pgTable("company_profiles", {
   id: serial("id").primaryKey(),
   tenantId: integer("tenant_id").references(() => tenantsTable.id).notNull().unique(),
+  createdBy: integer("created_by").references(() => usersTable.id),
+  updatedBy: integer("updated_by").references(() => usersTable.id),
   companyName: text("company_name").notNull(),
   gstNumber: text("gst_number"),
   panNumber: text("pan_number"),

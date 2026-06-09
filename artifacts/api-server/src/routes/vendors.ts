@@ -27,7 +27,7 @@ router.post("/", async (req: AuthenticatedRequest, res) => {
 
 router.put("/:id", async (req: AuthenticatedRequest, res) => {
   const tenantId = req.tenantId!;
-  const id = parseInt(req.params.id);
+  const id = Number(req.params.id);
   const { companyName, contactName, email, phone, type, categories, oemProducts, rating, notes } = req.body;
   const [vendor] = await db.update(vendorsTable).set({
     companyName, contactName, email, phone, type,
@@ -40,7 +40,7 @@ router.put("/:id", async (req: AuthenticatedRequest, res) => {
 
 router.delete("/:id", async (req: AuthenticatedRequest, res) => {
   const tenantId = req.tenantId!;
-  const id = parseInt(req.params.id);
+  const id = Number(req.params.id);
   await db.delete(vendorsTable).where(and(eq(vendorsTable.id, id), eq(vendorsTable.tenantId, tenantId)));
   res.status(204).send();
 });

@@ -2,10 +2,13 @@ import { pgTable, serial, text, integer, numeric, timestamp } from "drizzle-orm/
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { tenantsTable } from "./tenants";
+import { usersTable } from "./users";
 
 export const competitorRecordsTable = pgTable("competitor_records", {
   id: serial("id").primaryKey(),
   tenantId: integer("tenant_id").references(() => tenantsTable.id).notNull(),
+  createdBy: integer("created_by").references(() => usersTable.id),
+  updatedBy: integer("updated_by").references(() => usersTable.id),
   companyName: text("company_name").notNull(),
   tenderId: integer("tender_id"),
   tenderTitle: text("tender_title"),
@@ -15,11 +18,14 @@ export const competitorRecordsTable = pgTable("competitor_records", {
   category: text("category"),
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const amendmentsTable = pgTable("amendments", {
   id: serial("id").primaryKey(),
+  tenantId: integer("tenant_id").references(() => tenantsTable.id).notNull(),
   tenderId: integer("tender_id").notNull(),
+  createdBy: integer("created_by").references(() => usersTable.id),
   version: integer("version").notNull().default(1),
   type: text("type").notNull(),
   summary: text("summary").notNull(),
@@ -30,18 +36,23 @@ export const amendmentsTable = pgTable("amendments", {
 
 export const clarificationsTable = pgTable("clarifications", {
   id: serial("id").primaryKey(),
+  tenantId: integer("tenant_id").references(() => tenantsTable.id).notNull(),
   bidId: integer("bid_id").notNull(),
+  createdBy: integer("created_by").references(() => usersTable.id),
   question: text("question").notNull(),
   answer: text("answer"),
   status: text("status").notNull().default("pending"),
   submittedAt: timestamp("submitted_at"),
   repliedAt: timestamp("replied_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const vendorsTable = pgTable("vendors", {
   id: serial("id").primaryKey(),
   tenantId: integer("tenant_id").references(() => tenantsTable.id).notNull(),
+  createdBy: integer("created_by").references(() => usersTable.id),
+  updatedBy: integer("updated_by").references(() => usersTable.id),
   companyName: text("company_name").notNull(),
   contactName: text("contact_name"),
   email: text("email"),

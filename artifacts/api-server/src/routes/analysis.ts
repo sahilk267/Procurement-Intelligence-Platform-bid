@@ -40,7 +40,7 @@ function generateMockAnalysis(tender: any, tenantId: number) {
 
 router.get("/:tenderId", async (req: AuthenticatedRequest, res) => {
   const tenantId = req.tenantId!;
-  const tenderId = parseInt(req.params.tenderId);
+  const tenderId = Number(req.params.tenderId);
   const [analysis] = await db.select().from(tenderAnalysisTable).where(and(eq(tenderAnalysisTable.tenderId, tenderId), eq(tenderAnalysisTable.tenantId, tenantId))).limit(1);
   if (!analysis) { res.status(404).json({ error: "Analysis not found. Run analysis first." }); return; }
 
@@ -57,7 +57,7 @@ router.get("/:tenderId", async (req: AuthenticatedRequest, res) => {
 
 router.post("/:tenderId", async (req: AuthenticatedRequest, res) => {
   const tenantId = req.tenantId!;
-  const tenderId = parseInt(req.params.tenderId);
+  const tenderId = Number(req.params.tenderId);
 
   const [tender] = await db.select().from(tendersTable).where(and(eq(tendersTable.id, tenderId), eq(tendersTable.tenantId, tenantId))).limit(1);
   if (!tender) { res.status(404).json({ error: "Tender not found" }); return; }
@@ -87,7 +87,7 @@ router.post("/:tenderId", async (req: AuthenticatedRequest, res) => {
 
 router.get("/:tenderId/go-no-go", async (req: AuthenticatedRequest, res) => {
   const tenantId = req.tenantId!;
-  const tenderId = parseInt(req.params.tenderId);
+  const tenderId = Number(req.params.tenderId);
 
   const [analysis] = await db.select().from(tenderAnalysisTable).where(and(eq(tenderAnalysisTable.tenderId, tenderId), eq(tenderAnalysisTable.tenantId, tenantId))).limit(1);
   const [profile] = await db.select().from(companyProfileTable).where(eq(companyProfileTable.tenantId, tenantId)).limit(1);

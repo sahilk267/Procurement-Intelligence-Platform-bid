@@ -8,6 +8,7 @@ import Login from "@/pages/login";
 import Register from "@/pages/register";
 import Dashboard from "@/pages/dashboard";
 import Tenders from "@/pages/tenders";
+import TenderDetail from "@/pages/tender-detail";
 import Bids from "@/pages/bids";
 import Proposals from "@/pages/proposals";
 import Analysis from "@/pages/analysis";
@@ -25,6 +26,7 @@ import Suppliers from "@/pages/suppliers";
 import BidCompare from "@/pages/bid-compare";
 import Notifications from "@/pages/notifications";
 import Watchlist from "@/pages/watchlist";
+import CoreFeatures from "@/pages/core-features";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -41,7 +43,9 @@ function Router() {
       <Switch>
         <Route path="/login" component={Login} />
         <Route path="/dashboard" component={Dashboard} />
+        <Route path="/tenders/:id" component={TenderDetail} />
         <Route path="/tenders" component={Tenders} />
+        <Route path="/bids/compare" component={BidCompare} />
         <Route path="/bids" component={Bids} />
         <Route path="/proposals" component={Proposals} />
         <Route path="/analysis" component={Analysis} />
@@ -54,9 +58,9 @@ function Router() {
         <Route path="/calendar" component={CalendarPage} />
         <Route path="/vendors" component={Vendors} />
         <Route path="/suppliers" component={Suppliers} />
-        <Route path="/bids/compare" component={BidCompare} />
         <Route path="/notifications" component={Notifications} />
         <Route path="/watchlist" component={Watchlist} />
+        <Route path="/core-features" component={CoreFeatures} />
         <Route path="/admin" component={AdminPanel} />
         <Route path="/settings" component={Settings} />
         <Route component={NotFound} />

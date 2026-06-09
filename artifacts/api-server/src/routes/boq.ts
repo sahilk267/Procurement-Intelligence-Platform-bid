@@ -45,7 +45,7 @@ router.post("/", async (req: AuthenticatedRequest, res) => {
 });
 
 router.put("/:id", async (req: AuthenticatedRequest, res) => {
-  const id = parseInt(req.params.id);
+  const id = Number(req.params.id);
   const { description, unit, quantity, unitCost, margin, gst, vendorQuote } = req.body;
   const [item] = await db.update(boqItemsTable).set({
     description, unit, quantity: quantity?.toString(), unitCost: unitCost?.toString(),
@@ -56,7 +56,7 @@ router.put("/:id", async (req: AuthenticatedRequest, res) => {
 });
 
 router.delete("/:id", async (req, res) => {
-  const id = parseInt(req.params.id);
+  const id = Number(req.params.id);
   await db.delete(boqItemsTable).where(eq(boqItemsTable.id, id));
   res.status(204).send();
 });

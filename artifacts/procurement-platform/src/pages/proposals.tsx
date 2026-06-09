@@ -1,9 +1,9 @@
 import { useListProposals } from "@workspace/api-client-react";
-import { formatCurrency, formatDate } from "@/lib/format";
+import { formatDate } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FileText, Calendar, IndianRupee, ExternalLink } from "lucide-react";
+import { FileText, Calendar } from "lucide-react";
 
 const STATUS_VARIANT: Record<string, any> = {
   draft: "secondary",
@@ -47,23 +47,16 @@ export default function Proposals() {
                 {proposal.version && (
                   <div className="text-xs text-muted-foreground">Version {proposal.version}</div>
                 )}
-                {proposal.totalValue && (
-                  <div className="flex items-center gap-1.5 text-sm font-medium">
-                    <IndianRupee className="h-4 w-4 text-muted-foreground" />
-                    {formatCurrency(proposal.totalValue)}
-                  </div>
-                )}
-                {proposal.submissionDate && (
+                {proposal.createdAt && (
                   <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                     <Calendar className="h-4 w-4" />
-                    Submitted: {formatDate(proposal.submissionDate)}
+                    Created: {formatDate(proposal.createdAt)}
                   </div>
                 )}
-                {proposal.sections && (
+                {proposal.content && (
                   <div className="flex flex-wrap gap-1 mt-2">
-                    {proposal.sections.map((section: string, i: number) => (
-                      <Badge key={i} variant="secondary" className="text-[10px] font-normal">{section}</Badge>
-                    ))}
+                    <Badge variant="secondary" className="text-[10px] font-normal">{proposal.type}</Badge>
+                    <Badge variant="outline" className="text-[10px] font-normal">Draft content ready</Badge>
                   </div>
                 )}
               </CardContent>

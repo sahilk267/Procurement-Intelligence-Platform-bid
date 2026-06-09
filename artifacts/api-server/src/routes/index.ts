@@ -17,6 +17,8 @@ import clarificationsRouter from "./clarifications";
 import vendorsRouter from "./vendors";
 import adminRouter from "./admin";
 import notificationsRouter from "./notifications";
+import coreFeaturesRouter from "./core-features";
+import dataManagementRouter from "./data-management";
 
 const router: IRouter = Router();
 
@@ -38,5 +40,7 @@ router.use("/clarifications", clarificationsRouter);
 router.use("/vendors", vendorsRouter);
 router.use("/admin", adminRouter);
 router.use("/notifications", notificationsRouter);
+router.use("/core-features", coreFeaturesRouter);
+router.use("/data-management", dataManagementRouter);
 
 export default router;

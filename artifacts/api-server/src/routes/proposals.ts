@@ -107,14 +107,14 @@ router.post("/", async (req: AuthenticatedRequest, res) => {
 });
 
 router.get("/:id", async (req: AuthenticatedRequest, res) => {
-  const id = parseInt(req.params.id);
+  const id = Number(req.params.id);
   const [proposal] = await db.select().from(proposalsTable).where(eq(proposalsTable.id, id)).limit(1);
   if (!proposal) { res.status(404).json({ error: "Not found" }); return; }
   res.json(proposal);
 });
 
 router.put("/:id", async (req: AuthenticatedRequest, res) => {
-  const id = parseInt(req.params.id);
+  const id = Number(req.params.id);
   const { content, status, title } = req.body;
   const [proposal] = await db.update(proposalsTable).set({ content, status, title, updatedAt: new Date() }).where(eq(proposalsTable.id, id)).returning();
   if (!proposal) { res.status(404).json({ error: "Not found" }); return; }

@@ -7,23 +7,21 @@ import { MessageSquare, HelpCircle, CheckCircle2, Clock } from "lucide-react";
 
 const STATUS_VARIANTS: Record<string, any> = {
   pending: "outline",
-  answered: "default",
-  escalated: "destructive",
-  closed: "secondary",
+  submitted: "secondary",
+  replied: "default",
 };
 
 const STATUS_ICONS: Record<string, any> = {
   pending: Clock,
-  answered: CheckCircle2,
-  escalated: HelpCircle,
-  closed: CheckCircle2,
+  submitted: HelpCircle,
+  replied: CheckCircle2,
 };
 
 export default function Clarifications() {
   const { data: clarifications, isLoading } = useListClarifications();
 
-  const pending = (clarifications || []).filter(c => c.status === "pending" || c.status === "escalated");
-  const answered = (clarifications || []).filter(c => c.status === "answered" || c.status === "closed");
+  const pending = (clarifications || []).filter(c => c.status === "pending" || c.status === "submitted");
+  const answered = (clarifications || []).filter(c => c.status === "replied");
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">

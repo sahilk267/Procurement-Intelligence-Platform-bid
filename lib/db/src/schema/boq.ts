@@ -2,10 +2,13 @@ import { pgTable, serial, text, integer, numeric, timestamp } from "drizzle-orm/
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { bidsTable } from "./bids";
+import { usersTable } from "./users";
 
 export const boqItemsTable = pgTable("boq_items", {
   id: serial("id").primaryKey(),
   bidId: integer("bid_id").references(() => bidsTable.id).notNull(),
+  createdBy: integer("created_by").references(() => usersTable.id),
+  updatedBy: integer("updated_by").references(() => usersTable.id),
   description: text("description").notNull(),
   unit: text("unit"),
   quantity: numeric("quantity", { precision: 10, scale: 2 }).notNull(),

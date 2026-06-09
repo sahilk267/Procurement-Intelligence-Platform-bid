@@ -26,7 +26,7 @@ router.post("/", async (req: AuthenticatedRequest, res) => {
 });
 
 router.put("/:id", async (req: AuthenticatedRequest, res) => {
-  const id = parseInt(req.params.id);
+  const id = Number(req.params.id);
   const { status, answer } = req.body;
   const updates: any = { status };
   if (answer) updates.answer = answer;

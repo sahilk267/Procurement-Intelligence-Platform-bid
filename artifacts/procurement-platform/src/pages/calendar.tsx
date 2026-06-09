@@ -72,11 +72,11 @@ export default function CalendarPage() {
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-1 shrink-0">
-                      <Badge variant={URGENCY_VARIANTS[deadline.urgency] || "secondary"} className="uppercase text-[10px]">
-                        {deadline.urgency}
+                      <Badge variant={URGENCY_VARIANTS[deadline.urgency || "low"] || "secondary"} className="uppercase text-[10px]">
+                        {deadline.urgency || "low"}
                       </Badge>
-                      <span className={`text-lg font-bold ${deadline.daysRemaining <= 3 ? "text-red-600" : deadline.daysRemaining <= 7 ? "text-amber-600" : "text-foreground"}`}>
-                        {deadline.daysRemaining}d
+                      <span className={`text-lg font-bold ${(deadline.daysRemaining ?? 999) <= 3 ? "text-red-600" : (deadline.daysRemaining ?? 999) <= 7 ? "text-amber-600" : "text-foreground"}`}>
+                        {deadline.daysRemaining ?? "-"}d
                       </span>
                     </div>
                   </div>
@@ -98,20 +98,17 @@ export default function CalendarPage() {
             [1,2,3,4].map(i => <Skeleton key={i} className="h-20 w-full" />)
           ) : (events || []).length > 0 ? (
             (events || []).map((event) => (
-              <div key={event.id} className={`border-l-4 rounded-r-xl p-4 ${EVENT_COLORS[event.eventType] || EVENT_COLORS.other}`}>
+              <div key={event.id} className={`border-l-4 rounded-r-xl p-4 ${EVENT_COLORS[event.type] || EVENT_COLORS.other}`}>
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm">{event.title}</p>
-                    {event.description && (
-                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{event.description}</p>
-                    )}
+                    <p className="font-semibold text-sm">{event.tenderTitle}</p>
                     <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Clock className="h-3.5 w-3.5" />
-                        {formatDate(event.eventDate)}
+                        {formatDate(event.date)}
                       </div>
                       <Badge variant="outline" className="text-[10px] px-1 py-0 capitalize">
-                        {event.eventType?.replace("_", " ")}
+                        {event.type?.replace("_", " ")}
                       </Badge>
                     </div>
                   </div>

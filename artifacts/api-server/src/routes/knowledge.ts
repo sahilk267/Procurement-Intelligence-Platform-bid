@@ -27,7 +27,7 @@ router.post("/", async (req: AuthenticatedRequest, res) => {
 
 router.put("/:id", async (req: AuthenticatedRequest, res) => {
   const tenantId = req.tenantId!;
-  const id = parseInt(req.params.id);
+  const id = Number(req.params.id);
   const { title, category, content, tags } = req.body;
   const [item] = await db.update(knowledgeItemsTable).set({ title, category, content, tags: tags || [], updatedAt: new Date() })
     .where(and(eq(knowledgeItemsTable.id, id), eq(knowledgeItemsTable.tenantId, tenantId))).returning();
@@ -37,7 +37,7 @@ router.put("/:id", async (req: AuthenticatedRequest, res) => {
 
 router.delete("/:id", async (req: AuthenticatedRequest, res) => {
   const tenantId = req.tenantId!;
-  const id = parseInt(req.params.id);
+  const id = Number(req.params.id);
   await db.delete(knowledgeItemsTable).where(and(eq(knowledgeItemsTable.id, id), eq(knowledgeItemsTable.tenantId, tenantId)));
   res.status(204).send();
 });

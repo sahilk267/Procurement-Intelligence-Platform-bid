@@ -1,34 +1,29 @@
 import { useState } from "react";
-import { useListTenders, useGetTenderAnalysis, useGetGoNoGo } from "@workspace/api-client-react";
+import { useGetGoNoGo, useGetTenderAnalysis, useListTenders } from "@workspace/api-client-react";
 import { formatCurrency, formatDate } from "@/lib/format";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Briefcase, ChevronDown, ChevronUp, ThumbsUp, ThumbsDown,
-  AlertCircle, CheckCircle2, XCircle, Lightbulb, TrendingUp
-} from "lucide-react";
-import { formatDate as fd } from "@/lib/format";
+import { AlertCircle, CheckCircle2, ChevronDown, ChevronUp, Lightbulb, Target } from "lucide-react";
 
-function GoNoGoCard({ tenderId }: { tenderId: string }) {
-  const { data, isLoading } = useGetGoNoGo({ pathParams: { tenderId } });
+function GoNoGoCard({ tenderId }: { tenderId: number }) {
+  const { data, isLoading } = useGetGoNoGo(tenderId);
 
   if (isLoading) return <Skeleton className="h-24 w-full" />;
   if (!data) return null;
 
-  const isGo = data.recommendation === "go";
+  const variant = data.decision === "bid" ? "default" : data.decision === "skip" ? "destructive" : "secondary";
+
   return (
-    <div className={`rounded-xl p-4 border-2 flex items-center gap-4 ${isGo ? "bg-green-50 border-green-300 dark:bg-green-950 dark:border-green-700" : "bg-red-50 border-red-300 dark:bg-red-950 dark:border-red-700"}`}>
-      <div className={`rounded-full p-2 ${isGo ? "bg-green-200 dark:bg-green-800" : "bg-red-200 dark:bg-red-800"}`}>
-        {isGo ? <ThumbsUp className="h-6 w-6 text-green-700 dark:text-green-300" /> : <ThumbsDown className="h-6 w-6 text-red-700 dark:text-red-300" />}
-      </div>
+    <div className="flex items-center gap-4 rounded-lg border p-4">
+      <Target className="h-8 w-8 text-primary" />
       <div className="flex-1">
-        <div className="font-bold text-lg">{isGo ? "GO — Recommended Bid" : "NO-GO — Skip this Tender"}</div>
-        <div className="text-sm text-muted-foreground">Confidence: {data.confidence !== undefined ? `${Math.round(data.confidence * 100)}%` : "N/A"}</div>
+        <div className="font-semibold">{data.decision.toUpperCase()} recommendation</div>
+        <div className="text-sm text-muted-foreground">{data.reasoning || data.recommendation}</div>
       </div>
       <div className="text-right">
-        <div className="text-2xl font-bold">{data.score !== undefined ? data.score : "—"}<span className="text-sm text-muted-foreground">/100</span></div>
+        <Badge variant={variant}>{data.score}/100</Badge>
       </div>
     </div>
   );
@@ -36,21 +31,23 @@ function GoNoGoCard({ tenderId }: { tenderId: string }) {
 
 function TenderAnalysisPanel({ tender }: { tender: any }) {
   const [expanded, setExpanded] = useState(false);
-  const { data: analysis, isLoading } = useGetTenderAnalysis({ pathParams: { tenderId: tender.id } });
+  const { data: analysis, isLoading } = useGetTenderAnalysis(Number(tender.id), {
+    query: { enabled: expanded, queryKey: ["tender-analysis", tender.id] },
+  });
 
   return (
     <Card className="overflow-hidden">
-      <CardHeader className="pb-3 cursor-pointer" onClick={() => setExpanded(!expanded)}>
+      <CardHeader className="cursor-pointer pb-3" onClick={() => setExpanded((value) => !value)}>
         <div className="flex items-start justify-between gap-4">
-          <div className="flex-1 min-w-0">
-            <CardTitle className="text-base line-clamp-2 leading-snug">{tender.title}</CardTitle>
+          <div className="min-w-0 flex-1">
+            <CardTitle className="line-clamp-2 text-base leading-snug">{tender.title}</CardTitle>
             <CardDescription className="mt-1">
-              {tender.organisation} · {tender.source} · {formatDate(tender.closingDate)}
+              {tender.authority} - {tender.source} - {formatDate(tender.closingDate)}
             </CardDescription>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            {tender.estimatedValue && <span className="font-medium text-sm">{formatCurrency(tender.estimatedValue)}</span>}
-            <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}>
+          <div className="flex shrink-0 items-center gap-2">
+            {tender.estimatedValue && <span className="text-sm font-medium">{formatCurrency(Number(tender.estimatedValue))}</span>}
+            <Button variant="ghost" size="icon" type="button">
               {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
             </Button>
           </div>
@@ -59,78 +56,34 @@ function TenderAnalysisPanel({ tender }: { tender: any }) {
 
       {expanded && (
         <CardContent className="space-y-4 border-t pt-4">
-          <GoNoGoCard tenderId={tender.id} />
+          <GoNoGoCard tenderId={Number(tender.id)} />
 
           {isLoading ? (
             <div className="space-y-3">
-              {[1,2,3].map(i => <Skeleton key={i} className="h-16 w-full" />)}
+              {[1, 2, 3].map((item) => <Skeleton key={item} className="h-16 w-full" />)}
             </div>
           ) : analysis ? (
             <div className="grid gap-4 md:grid-cols-2">
-              {/* Summary */}
-              {analysis.summary && (
-                <div className="md:col-span-2">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Lightbulb className="h-4 w-4 text-amber-500" />
-                    <span className="font-semibold text-sm">AI Summary</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground bg-muted rounded-lg p-3">{analysis.summary}</p>
-                </div>
+              {analysis.aiSummary && (
+                <InfoBlock title="AI Summary" icon={Lightbulb} className="md:col-span-2">
+                  {analysis.aiSummary}
+                </InfoBlock>
               )}
 
-              {/* Strengths */}
-              {analysis.strengths && analysis.strengths.length > 0 && (
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-500" />
-                    <span className="font-semibold text-sm">Strengths</span>
-                  </div>
-                  <ul className="space-y-1">
-                    {analysis.strengths.map((s: string, i: number) => (
-                      <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
-                        <span className="text-green-500 mt-0.5 shrink-0">+</span>{s}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Risks */}
-              {analysis.risks && analysis.risks.length > 0 && (
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <AlertCircle className="h-4 w-4 text-red-500" />
-                    <span className="font-semibold text-sm">Risks</span>
-                  </div>
-                  <ul className="space-y-1">
-                    {analysis.risks.map((r: string, i: number) => (
-                      <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
-                        <span className="text-red-500 mt-0.5 shrink-0">!</span>{r}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Recommendations */}
-              {analysis.recommendations && analysis.recommendations.length > 0 && (
-                <div className="md:col-span-2">
-                  <div className="flex items-center gap-2 mb-2">
-                    <TrendingUp className="h-4 w-4 text-blue-500" />
-                    <span className="font-semibold text-sm">Recommendations</span>
-                  </div>
-                  <ul className="space-y-1">
-                    {analysis.recommendations.map((r: string, i: number) => (
-                      <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
-                        <span className="text-blue-500 mt-0.5 shrink-0">→</span>{r}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+              <InfoList
+                title="Eligibility Criteria"
+                icon={CheckCircle2}
+                items={(analysis.eligibilityCriteria || []).map((item) => item.criterion || item.notes || "Eligibility item")}
+              />
+              <InfoList
+                title="Risk Factors"
+                icon={AlertCircle}
+                items={(analysis.riskFactors || []).map((item) => item.factor || item.severity || "Risk item")}
+              />
+              <InfoList title="Hidden Clauses" icon={AlertCircle} items={analysis.hiddenClauses || []} className="md:col-span-2" />
             </div>
           ) : (
-            <div className="text-center text-muted-foreground py-8">No analysis available for this tender.</div>
+            <div className="py-8 text-center text-muted-foreground">No analysis available. Run AI summary from Core Features.</div>
           )}
         </CardContent>
       )}
@@ -138,8 +91,34 @@ function TenderAnalysisPanel({ tender }: { tender: any }) {
   );
 }
 
+function InfoBlock({ title, icon: Icon, children, className = "" }: { title: string; icon: any; children: React.ReactNode; className?: string }) {
+  return (
+    <div className={className}>
+      <div className="mb-2 flex items-center gap-2">
+        <Icon className="h-4 w-4 text-primary" />
+        <span className="text-sm font-semibold">{title}</span>
+      </div>
+      <p className="rounded-lg bg-muted p-3 text-sm text-muted-foreground">{children}</p>
+    </div>
+  );
+}
+
+function InfoList({ title, icon, items, className }: { title: string; icon: any; items: string[]; className?: string }) {
+  if (items.length === 0) return null;
+  return (
+    <InfoBlock title={title} icon={icon} className={className}>
+      <span className="block space-y-1">
+        {items.map((item, index) => (
+          <span key={index} className="block">{item}</span>
+        ))}
+      </span>
+    </InfoBlock>
+  );
+}
+
 export default function Analysis() {
   const { data: tenders, isLoading } = useListTenders();
+  const tenderList = tenders?.data ?? [];
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -150,16 +129,12 @@ export default function Analysis() {
 
       {isLoading ? (
         <div className="space-y-4">
-          {[1,2,3].map(i => <Skeleton key={i} className="h-28 w-full" />)}
+          {[1, 2, 3].map((item) => <Skeleton key={item} className="h-28 w-full" />)}
         </div>
       ) : (
         <div className="space-y-4">
-          {(tenders || []).map((tender) => (
-            <TenderAnalysisPanel key={tender.id} tender={tender} />
-          ))}
-          {(!tenders || tenders.length === 0) && (
-            <div className="text-center text-muted-foreground py-16">No tenders to analyze. Add tenders first.</div>
-          )}
+          {tenderList.map((tender) => <TenderAnalysisPanel key={tender.id} tender={tender} />)}
+          {tenderList.length === 0 && <div className="py-16 text-center text-muted-foreground">No tenders to analyze. Add tenders first.</div>}
         </div>
       )}
     </div>

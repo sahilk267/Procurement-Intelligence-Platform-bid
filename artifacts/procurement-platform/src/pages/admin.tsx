@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useListTenders, useListBids, useListVendors, useGetDashboardStats, useGetCurrentUser } from "@workspace/api-client-react";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -13,6 +13,7 @@ import {
   CheckCircle2, AlertCircle, BarChart2, Activity, Briefcase, Search
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
   ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend
@@ -24,7 +25,35 @@ const COLORS = [
 ];
 
 export default function AdminPanel() {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
+  const { toast } = useToast();
+  const [isIngesting, setIsIngesting] = useState(false);
+  const [ingestionStatus, setIngestionStatus] = useState<any>(null);
+
+  const fetchIngestionStatus = async () => {
+    if (!token) return;
+    try {
+      const base = import.meta.env.VITE_API_BASE_URL || '/api';
+      const res = await fetch(`${base}/data-management/tenders/ingestion-status`, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) {
+        // don't throw; just log and return
+        const body = await res.text();
+        console.debug('Failed to fetch ingestion status', body);
+        return;
+      }
+      const data = await res.json();
+      setIngestionStatus(data);
+    } catch (err) {
+      console.debug('Error fetching ingestion status', err);
+    }
+  };
+
+  useEffect(() => {
+    if (token) fetchIngestionStatus();
+  }, [token]);
   const { data: stats, isLoading: statsLoading } = useGetDashboardStats();
   const { data: tendersResp, isLoading: tendersLoading } = useListTenders({});
   const { data: bidsResp, isLoading: bidsLoading } = useListBids();
@@ -94,10 +123,80 @@ export default function AdminPanel() {
           <h1 className="text-3xl font-bold tracking-tight">Admin Panel</h1>
           <p className="text-muted-foreground">System overview, analytics, and platform management.</p>
         </div>
-        <Badge variant="outline" className="gap-1 text-sm px-3 py-1">
-          <ShieldCheck className="h-4 w-4 text-primary" />
-          {user?.role?.replace("_", " ")}
-        </Badge>
+        <div className="flex items-center gap-3">
+          <Badge variant="outline" className="gap-1 text-sm px-3 py-1">
+            <ShieldCheck className="h-4 w-4 text-primary" />
+            {user?.role?.replace("_", " ")}
+          </Badge>
+          <Button size="sm" onClick={async () => {
+            if (!token) {
+              toast({ title: "Not authenticated", variant: "destructive" });
+              return;
+            }
+            setIsIngesting(true);
+            try {
+              const base = import.meta.env.VITE_API_BASE_URL || '/api';
+              const res = await fetch(`${base}/data-management/tenders/ingest`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ sources: ['GeM','CPPP'], filters: { minValue: 100000, maxValue: 100000000 } })
+              });
+              const data = await res.json();
+              if (!res.ok) throw new Error(data.error || data.message || 'Ingestion failed');
+              toast({ title: 'Ingestion triggered', description: `Imported: ${data.result?.imported ?? 0}, Skipped: ${data.result?.skipped ?? 0}` });
+              // refresh status after successful manual ingestion
+              await fetchIngestionStatus();
+            } catch (err: any) {
+              toast({ title: err?.message || 'Ingestion failed', variant: 'destructive' });
+            } finally {
+              setIsIngesting(false);
+            }
+          }} disabled={isIngesting}>
+            {isIngesting ? 'Running…' : 'Run Ingestion Now'}
+          </Button>
+        </div>
+        {/* Ingestion status panel */}
+        <div className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Ingestion Status</CardTitle>
+              <CardDescription>Manual trigger + last ingestion summary</CardDescription>
+            </CardHeader>
+            <CardContent className="flex items-center justify-between gap-4">
+              <div>
+                <div className="text-sm text-muted-foreground">Last ingestion</div>
+                <div className="text-base font-medium">{ingestionStatus?.lastIngestion?.timestamp ? new Date(ingestionStatus.lastIngestion.timestamp).toLocaleString() : 'No recent ingestion'}</div>
+                <div className="text-xs text-muted-foreground">Imported: {ingestionStatus?.lastIngestion?.imported ?? '-' } • Status: {ingestionStatus?.lastIngestion?.status ?? '-'}</div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button size="sm" onClick={fetchIngestionStatus}>Refresh</Button>
+                <Button size="sm" variant="outline" onClick={async () => {
+                  if (!token) {
+                    toast({ title: "Not authenticated", variant: "destructive" });
+                    return;
+                  }
+                  setIsIngesting(true);
+                  try {
+                    const base = import.meta.env.VITE_API_BASE_URL || '/api';
+                    const res = await fetch(`${base}/data-management/tenders/ingest`, {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                      body: JSON.stringify({ sources: ['GeM','CPPP'] })
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.error || data.message || 'Ingestion failed');
+                    toast({ title: 'Ingestion triggered', description: `Imported: ${data.result?.imported ?? 0}` });
+                    await fetchIngestionStatus();
+                  } catch (err: any) {
+                    toast({ title: err?.message || 'Ingestion failed', variant: 'destructive' });
+                  } finally {
+                    setIsIngesting(false);
+                  }
+                }}>Run Now</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {/* KPI Cards */}

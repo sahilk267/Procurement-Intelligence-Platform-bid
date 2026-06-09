@@ -83,8 +83,8 @@ function scoreBid(bid: any): ScoreBreakdown {
 
   // 5. Readiness Score (10 pts) — pipeline stage
   const readinessMap: Record<string, number> = {
-    won: 10, submitted: 8, bid_prep: 6, evaluation: 5,
-    identification: 3, lost: 0, no_bid: 0,
+    won: 10, submitted: 8, in_progress: 6, shortlisted: 3,
+    lost: 0, dropped: 0,
   };
   const readiness = readinessMap[bid.stage] ?? 3;
 
@@ -190,9 +190,9 @@ function CriteriaRow({ label, icon: Icon, scores, field, max, bids }: {
 
 const COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))"];
 const STAGE_LABEL: Record<string, string> = {
-  identification: "Identified", evaluation: "Evaluating",
-  bid_prep: "Bid Prep", submitted: "Submitted",
-  won: "Won", lost: "Lost", no_bid: "No Bid",
+  shortlisted: "Shortlisted", in_progress: "In Progress",
+  submitted: "Submitted", won: "Won",
+  lost: "Lost", dropped: "Dropped",
 };
 
 export default function BidCompare() {

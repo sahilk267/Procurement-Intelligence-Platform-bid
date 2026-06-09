@@ -8,3 +8,5 @@ export * from "./documents";
 export * from "./knowledge";
 export * from "./analysis";
 export * from "./competitors";
+export * from "./monitoring";
+export * from "./ingestion";

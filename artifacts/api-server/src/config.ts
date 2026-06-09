@@ -6,6 +6,7 @@ const configSchema = z.object({
   LOG_LEVEL: z.string().default("info"),
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
   JWT_SECRET: z.string().min(1, "JWT_SECRET is required"),
+  INGESTION_CRON_SCHEDULE: z.string().default("0 13 * * *"),
 });
 
 const parsed = configSchema.safeParse(process.env);

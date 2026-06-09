@@ -8,19 +8,21 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { BookOpen, Search, FileText, Lightbulb, Scale, Package, Settings } from "lucide-react";
 
 const TYPE_ICONS: Record<string, any> = {
-  regulation: Scale,
-  template: FileText,
-  best_practice: Lightbulb,
-  product_spec: Package,
-  process: Settings,
+  company_intro: FileText,
+  project_description: Package,
+  certification_answer: Lightbulb,
+  technical_response: Settings,
+  compliance: Scale,
+  other: BookOpen,
 };
 
 const TYPE_COLORS: Record<string, string> = {
-  regulation: "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300",
-  template: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300",
-  best_practice: "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300",
-  product_spec: "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300",
-  process: "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300",
+  company_intro: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300",
+  project_description: "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300",
+  certification_answer: "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300",
+  technical_response: "bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300",
+  compliance: "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300",
+  other: "bg-muted",
 };
 
 export default function Knowledge() {
@@ -28,13 +30,13 @@ export default function Knowledge() {
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState("all");
 
-  const types = ["all", ...Array.from(new Set((items || []).map(i => i.type).filter(Boolean)))];
+  const types = ["all", ...Array.from(new Set((items || []).map(i => i.category).filter(Boolean)))];
 
   const filtered = (items || []).filter(item => {
     const matchSearch = !search ||
       item.title?.toLowerCase().includes(search.toLowerCase()) ||
       item.content?.toLowerCase().includes(search.toLowerCase());
-    const matchType = filterType === "all" || item.type === filterType;
+    const matchType = filterType === "all" || item.category === filterType;
     return matchSearch && matchType;
   });
 
@@ -66,7 +68,7 @@ export default function Knowledge() {
                   : "bg-muted text-muted-foreground hover:bg-muted/80"
               }`}
             >
-              {type === "all" ? "All" : type.replace("_", " ").replace(/\b\w/g, l => l.toUpperCase())}
+              {type === "all" ? "All" : type.replace("_", " ").replace(/\b\w/g, (letter) => letter.toUpperCase())}
             </button>
           ))}
         </div>
@@ -79,19 +81,19 @@ export default function Knowledge() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {filtered.map((item) => {
-            const Icon = TYPE_ICONS[item.type] || FileText;
+            const Icon = TYPE_ICONS[item.category] || FileText;
             return (
               <Card key={item.id} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-5">
                   <div className="flex items-start gap-3">
-                    <div className={`rounded-lg p-2 shrink-0 ${TYPE_COLORS[item.type] || "bg-muted"}`}>
+                    <div className={`rounded-lg p-2 shrink-0 ${TYPE_COLORS[item.category] || "bg-muted"}`}>
                       <Icon className="h-5 w-5" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <h3 className="font-semibold text-sm leading-snug">{item.title}</h3>
                         <Badge variant="outline" className="text-[10px] shrink-0 capitalize">
-                          {item.type?.replace("_", " ")}
+                          {item.category?.replace("_", " ")}
                         </Badge>
                       </div>
                       {item.content && (

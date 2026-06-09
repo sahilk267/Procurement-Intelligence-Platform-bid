@@ -8,7 +8,7 @@ const router = Router();
 router.use(authenticate);
 
 router.get("/:tenderId", async (req: AuthenticatedRequest, res) => {
-  const tenderId = parseInt(req.params.tenderId);
+  const tenderId = Number(req.params.tenderId);
   const amendments = await db.select().from(amendmentsTable).where(eq(amendmentsTable.tenderId, tenderId));
   res.json(amendments);
 });

@@ -64,7 +64,7 @@ router.put("/company-profile", async (req: AuthenticatedRequest, res) => {
 
 router.get("/check/:tenderId", async (req: AuthenticatedRequest, res) => {
   const tenantId = req.tenantId!;
-  const tenderId = parseInt(req.params.tenderId);
+  const tenderId = Number(req.params.tenderId);
 
   const [tender] = await db.select().from(tendersTable).where(and(eq(tendersTable.id, tenderId), eq(tendersTable.tenantId, tenantId))).limit(1);
   if (!tender) { res.status(404).json({ error: "Tender not found" }); return; }

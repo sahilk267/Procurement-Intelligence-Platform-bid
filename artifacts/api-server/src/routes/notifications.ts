@@ -1,8 +1,9 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { tendersTable, documentsTable, bidsTable } from "@workspace/db";
+import { tendersTable, documentsTable, bidsTable, usersTable, activityLogsTable } from "@workspace/db";
 import { authenticate, type AuthenticatedRequest } from "../middlewares/authenticate";
-import { eq, and, lte, gte } from "drizzle-orm";
+import { eq, and, lte, gte, sql, count } from "drizzle-orm";
+import { testEmailConnection } from "../lib/notifications";
 
 const router = Router();
 router.use(authenticate);
@@ -166,6 +167,137 @@ router.get("/", async (req: AuthenticatedRequest, res) => {
     unread: urgent + warning,
     counts: { urgent, warning, info: notifications.length - urgent - warning },
   });
+});
+
+// EMAIL NOTIFICATION MANAGEMENT
+
+// Test email configuration
+router.get("/email/test", async (req: AuthenticatedRequest, res) => {
+  try {
+    // Only allow admin users to test email
+    if (req.user?.role !== 'admin') {
+      return res.status(403).json({ error: "Admin access required" });
+    }
+
+    const isConnected = await testEmailConnection();
+    res.json({
+      emailConfigured: isConnected,
+      smtpHost: process.env.SMTP_HOST || 'localhost',
+      smtpPort: process.env.SMTP_PORT || '1025'
+    });
+  } catch (error) {
+    console.error("Error testing email:", error);
+    res.status(500).json({ error: "Failed to test email configuration" });
+  }
+});
+
+// Get user's notification preferences
+router.get("/preferences", async (req: AuthenticatedRequest, res) => {
+  try {
+    const tenantId = req.tenantId!;
+    const userId = req.userId!;
+
+    // For now, return default preferences
+    // In a real implementation, you'd have a notification_preferences table
+    const preferences = {
+      emailNotifications: true,
+      tenderAlerts: true,
+      bidUpdates: true,
+      taskAssignments: true,
+      documentExpiry: true,
+      frequency: 'immediate' // immediate, daily, weekly
+    };
+
+    res.json(preferences);
+  } catch (error) {
+    console.error("Error fetching notification preferences:", error);
+    res.status(500).json({ error: "Failed to fetch preferences" });
+  }
+});
+
+// Update user's notification preferences
+router.put("/preferences", async (req: AuthenticatedRequest, res) => {
+  try {
+    const tenantId = req.tenantId!;
+    const userId = req.userId!;
+    const { emailNotifications, tenderAlerts, bidUpdates, taskAssignments, documentExpiry, frequency } = req.body;
+
+    // For now, just validate and return success
+    // In a real implementation, you'd save to a notification_preferences table
+    const preferences = {
+      emailNotifications: emailNotifications ?? true,
+      tenderAlerts: tenderAlerts ?? true,
+      bidUpdates: bidUpdates ?? true,
+      taskAssignments: taskAssignments ?? true,
+      documentExpiry: documentExpiry ?? true,
+      frequency: frequency ?? 'immediate'
+    };
+
+    // Log preference update
+    await db.insert(activityLogsTable).values({
+      tenantId,
+      userId,
+      type: "notification_preferences_updated",
+      entityType: "user",
+      entityId: userId,
+      entityName: req.user!.name,
+      description: `Notification preferences updated`
+    });
+
+    res.json({ success: true, preferences });
+  } catch (error) {
+    console.error("Error updating notification preferences:", error);
+    res.status(500).json({ error: "Failed to update preferences" });
+  }
+});
+
+// Get recent notifications (activity logs that would trigger notifications)
+router.get("/recent", async (req: AuthenticatedRequest, res) => {
+  try {
+    const tenantId = req.tenantId!;
+    const userId = req.userId!;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const offset = (page - 1) * limit;
+
+    // Get recent activity logs that would trigger notifications
+    const notificationTypes = [
+      'tender_created',
+      'bid_created',
+      'bid_stage_changed',
+      'task_created',
+      'document_uploaded',
+      'alert_created'
+    ];
+
+    const [logs, totalResult] = await Promise.all([
+      db.select()
+        .from(activityLogsTable)
+        .where(and(
+          eq(activityLogsTable.tenantId, tenantId),
+          sql`${activityLogsTable.type} IN ${notificationTypes}`
+        ))
+        .orderBy(sql`created_at DESC`)
+        .limit(limit)
+        .offset(offset),
+      db.select({ count: count() })
+        .from(activityLogsTable)
+        .where(and(
+          eq(activityLogsTable.tenantId, tenantId),
+          sql`${activityLogsTable.type} IN ${notificationTypes}`
+        ))
+    ]);
+
+    res.json({
+      data: logs,
+      total: totalResult[0].count,
+      page,
+      limit
+    });
+  } catch (error) {
+    console.error("Error fetching recent notifications:", error);
+    res.status(500).json({ error: "Failed to fetch notifications" });
+  }
 });
 
 export default router;

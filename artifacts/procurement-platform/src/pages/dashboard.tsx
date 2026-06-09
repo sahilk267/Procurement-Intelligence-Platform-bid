@@ -193,7 +193,7 @@ export default function Dashboard() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <Badge variant={deadline.urgency === 'critical' ? 'destructive' : deadline.urgency === 'high' ? 'warning' : 'secondary'}>
+                      <Badge variant={deadline.urgency === 'critical' ? 'destructive' : deadline.urgency === 'high' ? 'outline' : 'secondary'}>
                         {deadline.daysRemaining} days
                       </Badge>
                     </div>
